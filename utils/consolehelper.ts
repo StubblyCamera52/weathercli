@@ -7,7 +7,7 @@ export function generateOutputArray(termWidth: number, termHeight: number): stri
   for (let row = 0; row < termHeight; row++) {
     output.push([]);
     for (let col = 0; col < termWidth; col++) {
-      output[row]?.push(" ")
+      output[row]?.push("x")
     }
   }
 
