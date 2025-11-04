@@ -8,5 +8,6 @@ export interface RenderBlock {
   gridWidth: number; // if 0 it will auto expand to max width
   gridHeight: number; // if 0 it will also auto expand to max width
   border: "none" | "dashed" | "solid";
-  render: (width: number, height: number, data: WeatherData) => Matrix2DChar;
+  renderString: string; // long ass string of ANSI escape codes and stuff. requires cursor to be set to the top-left corner of the block before render
+  updateRenderString: (width: number, height: number, posX: number, posY: number, data: WeatherData) => void;
 };

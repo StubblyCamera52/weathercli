@@ -15,21 +15,18 @@ function generateBlankCharArray(width: number, height: number): Matrix2DChar {
   return output;
 }
 
-function addSolidBorder(width: number, height: number, arr: Matrix2DChar) {
-  arr[0] = "┌"
-    .padEnd(width - 1, "─")
-    .concat("┐")
-    .split(""); // generates ┌───┐
-  for (let i = 1; i < height - 1; i++) {
-    // @ts-expect-error
-    arr[i][0] = "│";
-    // @ts-expect-error
-    arr[i][arr[i].length - 1] = "│";
-  }
-  arr[height - 1] = "└"
-    .padEnd(width - 1, "─")
-    .concat("┘")
-    .split(""); // generates └───┘
+function addSolidBorder(width: number, height: number, posX: number, posY: number, str: string): string {
+  let leftWallString = "\x1b[B\x1b["+posX+"G│"; // prints │ down the left side;
+  let rightWallString = "\x1b[B\x1b["+(posX+width-1)+"G│"; // prints │ down the right side
+
+  let borderGenString = "\x1b7\x1b["+posY+";"+posX+"f"; // save cursor position and move to top-left corner of block
+  borderGenString = borderGenString.concat("┌","─".repeat(width-2),"┐"); // add ┌───┐ to string
+  borderGenString = borderGenString.concat(leftWallString.repeat(height-2),"\x1b["+posY+";"+posX+"f", rightWallString.repeat(height-2));
+  borderGenString = borderGenString.concat("\x1b["+(posY+height-2)+";"+posX+"f");
+  borderGenString = borderGenString.concat("└","─".repeat(width-2),"┘");
+  borderGenString = borderGenString.concat("\x1b8");
+
+  return borderGenString;
 }
 
 function reduceCharsToStrings(arr: Matrix2DChar): string[] {

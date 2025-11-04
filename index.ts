@@ -15,18 +15,15 @@ let renderBlocks: RenderBlock[] = [
   new HourlyTemperatureAndConditions()
 ]
 
-let renderedRenderBlocks: Matrix2DChar[] = []
-
 // grid of 5x5 cells for 100x40 console
 
 for (let block of renderBlocks) {
   let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(process.stdout.columns, process.stdout.rows, 5, 5, block.gridWidth, block.gridHeight);
 
-  renderedRenderBlocks.push(block.render(sizeW, sizeH, testWeatherData));
+  block.updateRenderString(sizeW, sizeH, 1, 1, testWeatherData);
 }
 
-
-console.write('\x1B[?25l'); // hides cursor
+// console.write('\x1B[?25l'); // hides cursor
 console.write('\x1B[H'); // sets cursor to home pos (0,0)
 
 setInterval(() => {
@@ -34,19 +31,19 @@ setInterval(() => {
 }, 100);
 
 function render() {
-  let rendered: string[] = []
-  for (let block of renderedRenderBlocks) {
-    rendered = rendered.concat(reduceCharsToStrings(block));
-  }
-  //console.log(rendered);
-  console.write('\x1B[H');
-  for (let row of rendered) {
-    console.write(row);
+  if (!renderBlocks[0]) return;
+  //console.write('\x1B[H');
+  for (let block of renderBlocks) {
+    console.write(block.renderString);
   }
 }
 
 process.on("SIGWINCH", () => {
-  render();
+  console.clear();
+  for (let block of renderBlocks) {
+    let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(process.stdout.columns, process.stdout.rows, 5, 5, block.gridWidth, block.gridHeight);
+    block.updateRenderString(sizeW, sizeH, 1, 1, testWeatherData);
+  }
 });
 
 

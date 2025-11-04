@@ -63,19 +63,42 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
     gridHeight = 1;
     border = "solid" as "solid"; // bruh
     priority = 0;
+    renderString = "";
     constructor() {};
-    render = (width: number, height: number, data: WeatherData): Matrix2DChar => {
-      let charArray = generateBlankCharArray(width, height);
-      addSolidBorder(width, height, charArray);
+    updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
+      let string = "";
+      string = addSolidBorder(width, height, posX, posY, string);
+
+      this.renderString = string;
+
+      return;
 
       let times = data.hourly?.time;
       let temps = data.hourly?.temperature;
       let conditions = data.hourly?.weatherCode;
 
+      if (!times) {
+        return;
+      }
+
       let conditionStrings: string[] = [];
 
-      for 
+      for (let i = 0; i < times.length; i++) {
+        if (!times || !temps || !conditions) break;
+        let hour = 0;
+        let temp = 0;
+        let condition = -1;
+        if (times[i]) {
+          hour = new Date(times[i] as string).getHours(); // ts type checker being dumb
+        }
+        if (temps[i]) {
+          temp = temps[i] as number;
+        }
+        if (conditions[i]) {
+          condition = conditions[i] as number;
+        }
+      }
       
-      return charArray;
+      return;
     };
 }
