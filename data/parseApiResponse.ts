@@ -1,4 +1,4 @@
-import type { WeatherData } from "../types/weatherapi";
+import type { WeatherData, WeatherTimeRangeData } from "../types/weatherapi";
 
 type OpenMeteoApiResponse = {
   latitude: number;
@@ -228,4 +228,22 @@ type OpenMeteoApiResponse = {
 
 export function parseOpenMateoResponse(response: string): WeatherData {
   const responseObject: OpenMeteoApiResponse = JSON.parse(response);
+
+  let parsedWeatherData: WeatherData = {
+    "latitude": responseObject.latitude,
+    "longitude": responseObject.longitude,
+    "timezone": responseObject.timezone,
+    "timezoneOffset": responseObject.utc_offset_seconds,
+    "elevation": responseObject.elevation
+  };
+
+  let parsedHourlyData: WeatherTimeRangeData = {
+    "time": responseObject.hourly.time,
+    "temperature": responseObject.hourly.temperature_2m,
+    "weatherCode": responseObject.hourly.weather_code,
+  };
+
+  parsedWeatherData.hourly = parsedHourlyData;
+
+  return parsedWeatherData;
 }

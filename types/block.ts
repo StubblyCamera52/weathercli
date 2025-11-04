@@ -1,9 +1,11 @@
 import type { WeatherData } from "./weatherapi";
 
-export interface block {
+export type Matrix2DChar = Array<Array<string>>;
+
+export interface RenderBlock {
   title: string;
-  width: number; // if 0 it will auto expand to max width
-  height: number; // if 0 it will also auto expand to max width
-  border: "none" | "dashed";
-  renderFunc: (width: number, height: number, data: WeatherData) => Array<Array<string>>;
+  gridWidth: number; // if 0 it will auto expand to max width
+  gridHeight: number; // if 0 it will also auto expand to max width
+  border: "none" | "dashed" | "solid";
+  renderFunc: (width: number, height: number, data: WeatherData) => Matrix2DChar;
 };

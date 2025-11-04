@@ -3,6 +3,8 @@ import { generateOutputArray } from "./utils/consolehelper";
 let [numColumns,numRows] = process.stdout.getWindowSize();
 console.clear();
 
+let testApiData = await Bun.file("data/sampledata.json").text()
+
 // numRows--;
 
 let rendered = generateOutputArray(numColumns, numRows);
