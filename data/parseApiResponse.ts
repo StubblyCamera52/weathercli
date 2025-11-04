@@ -226,7 +226,7 @@ type OpenMeteoApiResponse = {
   };
 }
 
-export function parseOpenMateoResponse(response: string): WeatherData {
+export function parseOpenMeteoResponse(response: string): WeatherData {
   const responseObject: OpenMeteoApiResponse = JSON.parse(response);
 
   let parsedWeatherData: WeatherData = {

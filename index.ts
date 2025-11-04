@@ -1,3 +1,4 @@
+import { parseOpenMeteoResponse } from "./data/parseApiResponse";
 import { calcBlockDimensionsGivenGridSize, reduceCharsToStrings } from "./renderer/renderhelper";
 import { HourlyTemperatureAndConditions } from "./renderer/weathermodules";
 import type { Matrix2DChar, RenderBlock } from "./types/block";
@@ -8,6 +9,7 @@ let [numColumns,numRows] = process.stdout.getWindowSize();
 console.clear();
 
 let testApiData = await Bun.file("data/sampledata.json").text()
+let testWeatherData = parseOpenMeteoResponse(testApiData);
 
 let renderBlocks: RenderBlock[] = [
   new HourlyTemperatureAndConditions()
@@ -20,7 +22,7 @@ let renderedRenderBlocks: Matrix2DChar[] = []
 for (let block of renderBlocks) {
   let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(process.stdout.columns, process.stdout.rows, 5, 5, block.gridWidth, block.gridHeight);
 
-  renderedRenderBlocks.push(block.render(sizeW, sizeH, {} as unknown as WeatherData));
+  renderedRenderBlocks.push(block.render(sizeW, sizeH, testWeatherData));
 }
 
 
