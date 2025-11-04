@@ -15,21 +15,33 @@ let block1 = HourlyConditions.render(numColumns, numRows);
 
 let rendered = reduceCharsToStrings(block1);
 
-console.clear();
-console.write('\x1B[?25l');
+console.write('\x1B[?25l'); // hides cursor
+console.write('\x1B[H'); // sets cursor to home pos (0,0)
 
 for (let row of rendered) {
   console.write(row);
 }
 
+setInterval(() => {
+  block1 = HourlyConditions.render(process.stdout.columns, process.stdout.rows);
+  rendered = reduceCharsToStrings(block1);
+  console.write('\x1B[H');
+  for (let row of rendered) {
+    console.write(row);
+  }
+}, 100);
+
 process.on("SIGWINCH", () => {
   block1 = HourlyConditions.render(process.stdout.columns, process.stdout.rows);
   rendered = reduceCharsToStrings(block1);
   console.clear();
+  console.write('\x1B[H');
   for (let row of rendered) {
     console.write(row);
   }
-})
+});
+
+
 
 //console.log(`dimensions: ${col} cols x ${row} rows`);
 await new Promise(resolve => process.stdin.once('data', resolve));
