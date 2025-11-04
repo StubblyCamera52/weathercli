@@ -1,5 +1,6 @@
 import type { Matrix2DChar, RenderBlock } from "../types/block";
 import type { WeatherData } from "../types/weatherapi";
+import { addSolidBorder, generateBlankCharArray } from "./renderhelper";
 
 export class HourlyTemperatureAndConditions implements RenderBlock {
     title = "Hourly Conditions";
@@ -7,7 +8,9 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
     gridHeight = 1;
     border = "solid" as "solid"; // bruh
     constructor() {};
-    renderFunc = (width: number, height: number, data: WeatherData): Matrix2DChar {
-      
+    render = (width: number, height: number): Matrix2DChar => {
+      let charArray = generateBlankCharArray(width, height);
+      addSolidBorder(width, height, charArray);
+      return charArray;
     };
 }

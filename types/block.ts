@@ -7,5 +7,5 @@ export interface RenderBlock {
   gridWidth: number; // if 0 it will auto expand to max width
   gridHeight: number; // if 0 it will also auto expand to max width
   border: "none" | "dashed" | "solid";
-  renderFunc: (width: number, height: number, data: WeatherData) => Matrix2DChar;
+  render: (width: number, height: number, data: WeatherData) => Matrix2DChar;
 };
