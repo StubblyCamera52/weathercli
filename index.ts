@@ -1,5 +1,7 @@
-import { reduceCharsToStrings } from "./renderer/renderhelper";
+import { calcBlockDimensionsGivenGridSize, reduceCharsToStrings } from "./renderer/renderhelper";
 import { HourlyTemperatureAndConditions } from "./renderer/weathermodules";
+import type { Matrix2DChar, RenderBlock } from "./types/block";
+import type { WeatherData } from "./types/weatherapi";
 import { generateOutputArray } from "./utils/consolehelper";
 
 let [numColumns,numRows] = process.stdout.getWindowSize();
@@ -7,38 +9,42 @@ console.clear();
 
 let testApiData = await Bun.file("data/sampledata.json").text()
 
-// numRows--;
+let renderBlocks: RenderBlock[] = [
+  new HourlyTemperatureAndConditions()
+]
 
-let HourlyConditions = new HourlyTemperatureAndConditions();
+let renderedRenderBlocks: Matrix2DChar[] = []
 
-let block1 = HourlyConditions.render(numColumns, numRows);
+// grid of 5x5 cells for 100x40 console
 
-let rendered = reduceCharsToStrings(block1);
+for (let block of renderBlocks) {
+  let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(process.stdout.columns, process.stdout.rows, 5, 5, block.gridWidth, block.gridHeight);
+
+  renderedRenderBlocks.push(block.render(sizeW, sizeH, {} as unknown as WeatherData));
+}
+
 
 console.write('\x1B[?25l'); // hides cursor
 console.write('\x1B[H'); // sets cursor to home pos (0,0)
 
-for (let row of rendered) {
-  console.write(row);
-}
-
 setInterval(() => {
-  block1 = HourlyConditions.render(process.stdout.columns, process.stdout.rows);
-  rendered = reduceCharsToStrings(block1);
-  console.write('\x1B[H');
-  for (let row of rendered) {
-    console.write(row);
-  }
+  render();
 }, 100);
 
-process.on("SIGWINCH", () => {
-  block1 = HourlyConditions.render(process.stdout.columns, process.stdout.rows);
-  rendered = reduceCharsToStrings(block1);
-  console.clear();
+function render() {
+  let rendered: string[] = []
+  for (let block of renderedRenderBlocks) {
+    rendered = rendered.concat(reduceCharsToStrings(block));
+  }
+  //console.log(rendered);
   console.write('\x1B[H');
   for (let row of rendered) {
     console.write(row);
   }
+}
+
+process.on("SIGWINCH", () => {
+  render();
 });
 
 

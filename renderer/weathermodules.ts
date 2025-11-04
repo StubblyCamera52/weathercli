@@ -7,8 +7,9 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
     gridWidth = 0;
     gridHeight = 1;
     border = "solid" as "solid"; // bruh
+    priority = 0;
     constructor() {};
-    render = (width: number, height: number): Matrix2DChar => {
+    render = (width: number, height: number, data: WeatherData): Matrix2DChar => {
       let charArray = generateBlankCharArray(width, height);
       addSolidBorder(width, height, charArray);
       return charArray;

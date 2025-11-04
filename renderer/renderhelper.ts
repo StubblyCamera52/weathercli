@@ -1,3 +1,4 @@
+import type { NumberLiteralType } from "typescript";
 import type { Matrix2DChar } from "../types/block";
 
 function generateBlankCharArray(width: number, height: number): Matrix2DChar {
@@ -45,8 +46,25 @@ function reduceCharsToStrings(arr: Matrix2DChar): string[] {
   return output;
 }
 
+function calcBlockDimensionsGivenGridSize(termSizeW: number, termSizeH: number, gridCellsW: number, gridCellsH: number, blockSizeW: number, blockSizeH: number): [number, number] {
+  let calcW: number;
+  let calcH: number;
+  const ratioW = Math.floor(termSizeW/gridCellsW);
+  const ratioH = Math.floor(termSizeH/gridCellsH);
+
+  if (blockSizeW == 0) {
+    calcW = termSizeW;
+  } else {
+    calcW = blockSizeW*ratioW;
+  }
+
+  calcH = blockSizeH*ratioH;
+
+  return [calcW, calcH];
+}
+
 // ┌───┐
 // │.  │
 // └───┘
 
-export { generateBlankCharArray, addSolidBorder, reduceCharsToStrings };
+export { generateBlankCharArray, addSolidBorder, reduceCharsToStrings, calcBlockDimensionsGivenGridSize };
