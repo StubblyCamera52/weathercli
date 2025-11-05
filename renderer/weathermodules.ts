@@ -1,6 +1,6 @@
 import type { Matrix2DChar, RenderBlock } from "../types/block";
 import type { WeatherData } from "../types/weatherapi";
-import { addSolidBorder, generateBlankCharArray } from "./renderhelper";
+import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateBlankCharArray, generateMoveToCmd } from "./renderhelper";
 
 // wmo weather codes
 // 0	Clear sky
@@ -77,8 +77,8 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
     updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
       let midCol = posX+Math.floor(width/2)-1;
       let midRow = posY+Math.floor(height/2)-1;
-      let moveToMidCmd = "\x1b["+midRow+";"+midCol+"f";
-      let moveToCornerCmd = "\x1b["+posY+";"+posX+"f";
+      let moveToMidCmd = generateMoveToCmd(midCol, midRow);
+      let moveToCornerCmd = generateMoveToCmd(posX, posY);
 
       let output_string = "";
       output_string = addSolidBorder(width, height, posX, posY, output_string);
@@ -91,14 +91,19 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
         return;
       }
 
-      for (let i = 0; i < times.length; i++) {
-        if (i>0) break;
+      let sectionWidth = width/6
+
+      for (let i = 0; i < 6; i++) {
+        let [sectionWidth, sectionPosX, sectionMidCol] = calculateIndividualSectionWidthAndXPosAndMidCol(width, 6, posX, i);
+        let moveToMidCmd = generateMoveToCmd(sectionMidCol, midRow); // override movetomidcmd with the section middle
+
         if (!times || !temps || !conditions) break;
-        let hour = 0;
+        let hour = new Date();
+        hour.setHours(0);
         let temp = 0;
         let condition = -1;
         if (times[i]) {
-          hour = new Date(times[i] as string).getHours(); // ts type checker being dumb
+          hour = new Date(times[i] as string); // ts type checker being dumb
         }
         if (temps[i]) {
           temp = temps[i] as number;
@@ -114,13 +119,12 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
         //console.write(moveToMidCmd);
 
         let is_am_or_pm: string = "AM";
-        if (hour > 12) {
-          hour = hour % 12;
+        if (hour.getHours() > 12) {
           is_am_or_pm = "PM";
         }
 
         output_string = output_string.concat(moveToMidCmd, "\x1b["+Math.floor(conditionString.length/2)+"D", conditionString);
-        output_string = output_string.concat(moveToMidCmd, "\x1b[1D\x1b[1B", hour.toString()+is_am_or_pm);
+        output_string = output_string.concat(moveToMidCmd, "\x1b[1D\x1b[1B", (hour.toLocaleTimeString(Intl.getCanonicalLocales("en-US")).split(":")[0] as string).concat(is_am_or_pm)); // makes it say the hour in 12hr time
         output_string = output_string.concat(moveToMidCmd, "\x1b[2D\x1b[1A", temp.toPrecision(2)+"°C");
       }
 

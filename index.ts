@@ -1,5 +1,5 @@
 import { parseOpenMeteoResponse } from "./data/parseApiResponse";
-import { calcBlockDimensionsGivenGridSize, reduceCharsToStrings } from "./renderer/renderhelper";
+import { calcBlockDimensionsGivenGridSize, calcMaxGridCellsXYFromTermSize, reduceCharsToStrings } from "./renderer/renderhelper";
 import { HourlyTemperatureAndConditions } from "./renderer/weathermodules";
 import type { Matrix2DChar, RenderBlock } from "./types/block";
 import type { WeatherData } from "./types/weatherapi";
@@ -15,10 +15,12 @@ let renderBlocks: RenderBlock[] = [
   new HourlyTemperatureAndConditions()
 ]
 
+let [gridCellsMX, gridCellsMY] = calcMaxGridCellsXYFromTermSize(numColumns, numRows);
+
 // grid of 5x5 cells for 100x40 console
 
 for (let block of renderBlocks) {
-  let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(process.stdout.columns, process.stdout.rows, 5, 2, block.gridWidth, block.gridHeight);
+  let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(numColumns, numRows, gridCellsMX, gridCellsMY, block.gridWidth, block.gridHeight);
 
   block.updateRenderString(sizeW, sizeH, 1, 1, testWeatherData);
 }
@@ -26,9 +28,9 @@ for (let block of renderBlocks) {
 console.write('\x1B[?25l'); // hides cursor
 console.write('\x1B[H'); // sets cursor to home pos (0,0)
 
-setInterval(() => {
-  render();
-}, 100);
+// setInterval(() => {
+//   render();
+// }, 100);
 
 function render() {
   // console.write('\x1B[H');
@@ -37,12 +39,16 @@ function render() {
   }
 }
 
+render();
+
 process.on("SIGWINCH", () => {
   console.clear();
   for (let block of renderBlocks) {
-    let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(process.stdout.columns, process.stdout.rows, 5, 5, block.gridWidth, block.gridHeight);
+    let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(process.stdout.columns, process.stdout.rows, 5, 4, block.gridWidth, block.gridHeight);
     block.updateRenderString(sizeW, sizeH, 1, 1, testWeatherData);
   }
+  console.write('\x1B[H');
+  render();
 });
 
 

@@ -60,8 +60,33 @@ function calcBlockDimensionsGivenGridSize(termSizeW: number, termSizeH: number, 
   return [calcW, calcH];
 }
 
+function calculateIndividualSectionWidthAndXPosAndMidCol(totalWidth: number, numSections: number, blockX: number, sectionIndex: number): [number, number, number] { // width, xpos, midcol
+  let sectionWidth = Math.floor(totalWidth/numSections);
+  let xPos = blockX + sectionWidth*sectionIndex
+  let midCol = xPos + (Math.floor(sectionWidth/2)-1);
+
+  return [sectionWidth, xPos, midCol];
+}
+
+function generateMoveToCmd(col: number, row: number): string {
+  return "\x1b["+row+";"+col+"f";
+}
+
+function calcMaxGridCellsXYFromTermSize(termWidth: number, termHeight: number): [number, number] {
+  const minCellSizeX = 14;
+  const minCellSizeY = 5;
+
+  const maxCellsX = Math.floor(termWidth/minCellSizeX);
+  const maxCellsY = Math.floor(termHeight/minCellSizeY);
+
+  return [maxCellsX, maxCellsY];
+}
+
 // ┌───┐
 // │.  │
 // └───┘
 
-export { generateBlankCharArray, addSolidBorder, reduceCharsToStrings, calcBlockDimensionsGivenGridSize };
+export {
+  generateBlankCharArray, addSolidBorder, reduceCharsToStrings, calcBlockDimensionsGivenGridSize,
+  calculateIndividualSectionWidthAndXPosAndMidCol, generateMoveToCmd, calcMaxGridCellsXYFromTermSize
+};
