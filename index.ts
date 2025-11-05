@@ -18,12 +18,12 @@ let renderBlocks: RenderBlock[] = [
 // grid of 5x5 cells for 100x40 console
 
 for (let block of renderBlocks) {
-  let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(process.stdout.columns, process.stdout.rows, 5, 5, block.gridWidth, block.gridHeight);
+  let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(process.stdout.columns, process.stdout.rows, 5, 2, block.gridWidth, block.gridHeight);
 
   block.updateRenderString(sizeW, sizeH, 1, 1, testWeatherData);
 }
 
-// console.write('\x1B[?25l'); // hides cursor
+console.write('\x1B[?25l'); // hides cursor
 console.write('\x1B[H'); // sets cursor to home pos (0,0)
 
 setInterval(() => {
@@ -31,8 +31,7 @@ setInterval(() => {
 }, 100);
 
 function render() {
-  if (!renderBlocks[0]) return;
-  //console.write('\x1B[H');
+  // console.write('\x1B[H');
   for (let block of renderBlocks) {
     console.write(block.renderString);
   }

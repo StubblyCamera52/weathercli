@@ -57,6 +57,15 @@ function convertWMOCodeToString(code?: number): string {
   }
 }
 
+/*
+
+      100°C
+⛅️ Partly Cloudy
+       7pm
+
+
+*/
+
 export class HourlyTemperatureAndConditions implements RenderBlock {
     title = "Hourly Conditions";
     gridWidth = 0;
@@ -66,12 +75,13 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
     renderString = "";
     constructor() {};
     updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
-      let string = "";
-      string = addSolidBorder(width, height, posX, posY, string);
+      let midCol = posX+Math.floor(width/2)-1;
+      let midRow = posY+Math.floor(height/2)-1;
+      let moveToMidCmd = "\x1b["+midRow+";"+midCol+"f";
+      let moveToCornerCmd = "\x1b["+posY+";"+posX+"f";
 
-      this.renderString = string;
-
-      return;
+      let output_string = "";
+      output_string = addSolidBorder(width, height, posX, posY, output_string);
 
       let times = data.hourly?.time;
       let temps = data.hourly?.temperature;
@@ -81,9 +91,8 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
         return;
       }
 
-      let conditionStrings: string[] = [];
-
       for (let i = 0; i < times.length; i++) {
+        if (i>0) break;
         if (!times || !temps || !conditions) break;
         let hour = 0;
         let temp = 0;
@@ -97,7 +106,25 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
         if (conditions[i]) {
           condition = conditions[i] as number;
         }
+
+        let conditionString = convertWMOCodeToString(condition);
+
+        //console.log(conditionString);
+
+        //console.write(moveToMidCmd);
+
+        let is_am_or_pm: string = "AM";
+        if (hour > 12) {
+          hour = hour % 12;
+          is_am_or_pm = "PM";
+        }
+
+        output_string = output_string.concat(moveToMidCmd, "\x1b["+Math.floor(conditionString.length/2)+"D", conditionString);
+        output_string = output_string.concat(moveToMidCmd, "\x1b[1D\x1b[1B", hour.toString()+is_am_or_pm);
+        output_string = output_string.concat(moveToMidCmd, "\x1b[2D\x1b[1A", temp.toPrecision(2)+"°C");
       }
+
+      this.renderString = output_string;
       
       return;
     };

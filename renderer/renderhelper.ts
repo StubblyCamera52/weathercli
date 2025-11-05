@@ -26,7 +26,7 @@ function addSolidBorder(width: number, height: number, posX: number, posY: numbe
   borderGenString = borderGenString.concat("└","─".repeat(width-2),"┘");
   borderGenString = borderGenString.concat("\x1b8");
 
-  return borderGenString;
+  return str.concat(borderGenString);
 }
 
 function reduceCharsToStrings(arr: Matrix2DChar): string[] {
