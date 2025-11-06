@@ -19,13 +19,14 @@ function generateBlankCharArray(width: number, height: number): Matrix2DChar {
 }
 
 function addSolidBorder(width: number, height: number, posX: number, posY: number, str: string): string {
-  let leftWallString = "\x1b[B\x1b["+posX+"G│"; // prints │ down the left side;
-  let rightWallString = "\x1b[B\x1b["+(posX+width-1)+"G│"; // prints │ down the right side
+  // console.log(width, height, posX, posY);
+  let leftWallString = "\x1b[1B\x1b["+posX+"G│"; // prints │ down the left side;
+  let rightWallString = "\x1b[1B\x1b["+(posX+width-1)+"G│"; // prints │ down the right side
 
   let borderGenString = "\x1b7\x1b["+posY+";"+posX+"f"; // save cursor position and move to top-left corner of block
   borderGenString = borderGenString.concat("┌","─".repeat(width-2),"┐"); // add ┌───┐ to string
   borderGenString = borderGenString.concat(leftWallString.repeat(height-2),"\x1b["+posY+";"+posX+"f", rightWallString.repeat(height-2));
-  borderGenString = borderGenString.concat("\x1b["+(posY+height-2)+";"+posX+"f");
+  borderGenString = borderGenString.concat("\x1b["+(posY+height-1)+";"+posX+"f");
   borderGenString = borderGenString.concat("└","─".repeat(width-2),"┘");
   borderGenString = borderGenString.concat("\x1b8");
 
@@ -55,10 +56,12 @@ function calcBlockDimensionsGivenGridSize(termSizeW: number, termSizeH: number, 
   if (blockSizeW == 0) {
     calcW = termSizeW;
   } else {
-    calcW = blockSizeW*ratioW;
+    calcW = blockSizeW*GRID_CELL_SIZE_X;
   }
 
-  calcH = blockSizeH*ratioH;
+  calcH = blockSizeH*GRID_CELL_SIZE_Y;
+
+  //console.log(calcW, calcH);
 
   return [calcW, calcH];
 }

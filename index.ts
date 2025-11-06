@@ -1,5 +1,5 @@
 import { parseOpenMeteoResponse } from "./data/parseApiResponse";
-import { calcBlockDimensionsGivenGridSize, calcMaxGridCellsXYFromTermSize, reduceCharsToStrings } from "./renderer/renderhelper";
+import { calcBlockDimensionsGivenGridSize, calcMaxGridCellsXYFromTermSize, GRID_CELL_SIZE_X, GRID_CELL_SIZE_Y, reduceCharsToStrings } from "./renderer/renderhelper";
 import { CurrentConditions, HourlyTemperatureAndConditions, OneByOneTestBlock, TwoByTwoTestBlock } from "./renderer/weathermodules";
 import { RenderGrid, type Matrix2DChar, type RenderBlock } from "./types/block";
 import type { WeatherData } from "./types/weatherapi";
@@ -28,6 +28,8 @@ function updateBlockRenderStrings() {
   [numColumns,numRows] = process.stdout.getWindowSize();
   
   let [gridCellsMX, gridCellsMY] = calcMaxGridCellsXYFromTermSize(numColumns, numRows);
+
+  //console.log(gridCellsMX, gridCellsMY);
 
   let renderGrid = new RenderGrid(gridCellsMX, gridCellsMY);
 
@@ -63,26 +65,21 @@ function updateBlockRenderStrings() {
     renderOrder.push(i);
   }
 
-  //console.log(renderGrid.gridRep);
 
   renderOrder.forEach((id, idx) => {
-    
+    if (renderBlocks[id]) {
+      let block = renderBlocks[id];
+      let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(numColumns, numRows, gridCellsMX, gridCellsMY, block.gridWidth, block.gridHeight);
+      let [posX, posY] = [blockPositions[idx]![0]*GRID_CELL_SIZE_X+1, blockPositions[idx]![1]*GRID_CELL_SIZE_Y+1]; // +1 bc col and row start at 1,1
+
+      block.updateRenderString(sizeW, sizeH, posX, posY, testWeatherData);
+    }
   });
 }
 
 updateBlockRenderStrings();
 
-process.exit(0);
-
-  // for (let block of renderBlocks) {
-  //   let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(numColumns, numRows, gridCellsMX, gridCellsMY, block.gridWidth, block.gridHeight);
-
-
-
-  //   block.updateRenderString(sizeW, sizeH, 1, 1, testWeatherData);
-  // }
-
-console.write('\x1B[?25l'); // hides cursor
+//console.write('\x1B[?25l'); // hides cursor
 console.write('\x1B[H'); // sets cursor to home pos (0,0)
 
 // setInterval(() => {
@@ -91,8 +88,10 @@ console.write('\x1B[H'); // sets cursor to home pos (0,0)
 
 function render() {
   // console.write('\x1B[H');
-  for (let block of renderBlocks) {
-    console.write(block.renderString);
+  for (let idx of renderOrder) {
+    if (renderBlocks[idx]) {
+      console.write(renderBlocks[idx]?.renderString);
+    }
   }
 }
 
@@ -100,10 +99,7 @@ render();
 
 process.on("SIGWINCH", () => {
   console.clear();
-  for (let block of renderBlocks) {
-    let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(process.stdout.columns, process.stdout.rows, 5, 4, block.gridWidth, block.gridHeight);
-    block.updateRenderString(sizeW, sizeH, 1, 1, testWeatherData);
-  }
+  updateBlockRenderStrings();
   console.write('\x1B[H');
   render();
 });

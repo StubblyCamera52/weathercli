@@ -66,8 +66,8 @@ export class CurrentConditions implements RenderBlock {
   renderString = "";
   constructor() {};
   updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
-    let midCol = posX+Math.floor(width/2)-1;
-    let midRow = posY+Math.floor(height/2)-1;
+    let midCol = posX+Math.floor(width/2);
+    let midRow = posY+Math.floor(height/2);
     let moveToMidCmd = generateMoveToCmd(midCol, midRow);
     let moveToCornerCmd = generateMoveToCmd(posX, posY);
     let output_string = "";
@@ -128,8 +128,8 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
     renderString = "";
     constructor() {};
     updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
-      let midCol = posX+Math.floor(width/2)-1;
-      let midRow = posY+Math.floor(height/2)-1;
+      let midCol = posX+Math.floor(width/2);
+      let midRow = posY+Math.floor(height/2);
       let moveToMidCmd = generateMoveToCmd(midCol, midRow);
       let moveToCornerCmd = generateMoveToCmd(posX, posY);
 

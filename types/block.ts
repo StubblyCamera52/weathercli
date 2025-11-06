@@ -11,6 +11,12 @@ type oneOrZero = "1" | "0";
 // 01100
 // 00000
 
+// 111111
+// 111111
+// 111000
+// 011000
+// 000000
+
 export class RenderGrid {
   width: number;
   height: number;
