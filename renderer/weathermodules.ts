@@ -61,7 +61,7 @@ function convertWMOCodeToString(code?: number): string {
 export class CurrentConditions implements RenderBlock {
   title = "Current Conditions";
   gridWidth = 0;
-  gridHeight = 1;
+  gridHeight = 2;
   border = "none" as "none";
   renderString = "";
   constructor() {};

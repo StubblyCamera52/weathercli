@@ -1,6 +1,6 @@
 import { parseOpenMeteoResponse } from "./data/parseApiResponse";
 import { calcBlockDimensionsGivenGridSize, calcMaxGridCellsXYFromTermSize, GRID_CELL_SIZE_X, GRID_CELL_SIZE_Y, reduceCharsToStrings } from "./renderer/renderhelper";
-import { CurrentConditions, HourlyTemperatureAndConditions, OneByOneTestBlock, TwoByTwoTestBlock } from "./renderer/weathermodules";
+import { CurrentConditions, HourlyTemperatureAndConditions, OneByOneTestBlock, OneByThreeTestBlock, TwoByOneTestBlock, TwoByTwoTestBlock } from "./renderer/weathermodules";
 import { RenderGrid, type Matrix2DChar, type RenderBlock } from "./types/block";
 import type { WeatherData } from "./types/weatherapi";
 import { generateOutputArray } from "./utils/consolehelper";
@@ -12,11 +12,22 @@ let testApiData = await Bun.file("data/sampledata.json").text()
 let testWeatherData = parseOpenMeteoResponse(testApiData);
 
 let renderBlocks: RenderBlock[] = [
-  new CurrentConditions(),
-  new HourlyTemperatureAndConditions(),
+  //new CurrentConditions(),
+  //new HourlyTemperatureAndConditions(),
   new OneByOneTestBlock(),
   new TwoByTwoTestBlock(),
-]
+  new TwoByOneTestBlock(),
+  new TwoByOneTestBlock(),
+  new OneByThreeTestBlock(),
+  new OneByThreeTestBlock(),
+].sort((a, b) => {
+    let area1 = a.gridWidth * a.gridHeight;
+    if (area1 == 0) return 1;
+    let area2 = b.gridWidth * b.gridHeight;
+    if (area2 == 0) return -1;
+
+    return area2 - area1;
+});
 
 // gonna use a top-left decreasing algorithm for grid placement
 
@@ -32,17 +43,6 @@ function updateBlockRenderStrings() {
   //console.log(gridCellsMX, gridCellsMY);
 
   let renderGrid = new RenderGrid(gridCellsMX, gridCellsMY);
-
-  renderOrder.sort((a, b) => {
-    // @ts-expect-error
-    let area1 = renderBlocks[a].gridWidth * renderBlocks[a].gridHeight;
-    if (area1 == 0) return 1;
-    // @ts-expect-error
-    let area2 = renderBlocks[b].gridWidth * renderBlocks[b].gridHeight;
-    if (area2 == 0) return -1;
-
-    return area1 - area2;
-  }); // sort descending by area
 
   let blockPositions: Array<[number, number]> = []; // maps to render order
 
@@ -75,6 +75,8 @@ function updateBlockRenderStrings() {
       block.updateRenderString(sizeW, sizeH, posX, posY, testWeatherData);
     }
   });
+
+  //console.log(renderGrid.gridRep);
 }
 
 updateBlockRenderStrings();
