@@ -38,16 +38,18 @@ function updateBlockRenderStrings() {
     return area1 - area2;
   }); // sort descending by area
 
-  let blockPositions: Array<[number, number]> = [];
+  let blockPositions: Array<[number, number]> = []; // maps to render order
 
 
-  let grid: boolean[][] = Array.from({length: gridCellsMX}).map(() => Array.from({length: gridCellsMY}).fill(false)) as boolean[][];
+  
 
-  for (let block of renderBlocks) {
-    let itemWidth = block.gridWidth;
-    let itemHeight = block.gridHeight;
+  for (let index of renderOrder) {
+    if (!renderBlocks[index]) continue;
 
-    
+    let itemWidth = renderBlocks[index].gridWidth;
+    let itemHeight = renderBlocks[index].gridHeight;
+
+
   }
 
 

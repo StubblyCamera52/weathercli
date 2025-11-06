@@ -1,6 +1,73 @@
 import type { WeatherData } from "./weatherapi";
 
 export type Matrix2DChar = Array<Array<string>>;
+type oneOrZero = "1" | "0";
+
+// regexp for matching open space: 0{4}(0|1){4}0{4}
+
+export class RenderGrid {
+  width: number;
+  height: number;
+  private grid: Array<Array<boolean>>; // true means something is there, false means free space
+  private gridRep!: string; // tsc being dum again
+
+  constructor(width: number, height: number) {
+    this.width = width;
+    this.height = height;
+    this.grid = Array.from({length: width}).map(() => Array.from({length: height}).fill(false)) as boolean[][];
+    this.regenerateGridRep();
+  }
+
+  private regenerateGridRep() {
+    this.gridRep = this.grid.flat().map((item) => {return item ? "1" : "0" as string}).reduce((prev, curr) => {return prev.concat(curr)}); // flattens array, and converts to a string of 1's and 0's (useful for finding space)
+  }
+
+  checkForOpenSpace(blockWidth: number, blockHeight: number): [number, number] | null {
+    // 0{x}((0|1){gridw-x}0{x}){y-1}
+
+    let amountOfNumbersBetweenNextRowMatch = blockWidth - this.width;
+    let openSpaceExpr = new RegExp(`0{${blockWidth}}((0|1){${amountOfNumbersBetweenNextRowMatch}}0{${blockWidth}}){${blockHeight-1}}`); // matches to an open block;
+    let openSpaceIdx = openSpaceExpr.exec(this.gridRep);
+
+    if (openSpaceIdx) {
+      return [openSpaceIdx.index % this.width, Math.trunc(openSpaceIdx.index / this.width)]; // converts index to grid cell coords
+    } else {
+      return null;
+    }
+  }
+
+  addBlockToGrid(blockWidth: number, blockHeight: number, posX: number, posY: number): void {
+    this.grid.map((value, index) => {
+      if (posY > index || posY+blockHeight <= index) return value; // if this is not the correct row, dont update
+      return value.map((value2, index2) => {
+        if (posX > index2 || posX+blockWidth <= index2) return value; // if this is not the correct column, dont update
+        return true;
+      });
+    });
+  }
+
+  // same as above but sets to false instead of true
+  removeBlockFromGrid(blockWidth: number, blockHeight: number, posX: number, posY: number): void {
+    this.grid.map((value, index) => {
+      if (posY > index || posY+blockHeight <= index) return value; // if this is not the correct row, dont update
+      return value.map((value2, index2) => {
+        if (posX > index2 || posX+blockWidth <= index2) return value; // if this is not the correct column, dont update
+        return false;
+      });
+    });
+  }
+}
+
+
+/*
+
+0[0000]0
+0[0000]0
+000000
+000000
+
+
+*/
 
 export interface RenderBlock {
   title: string;
