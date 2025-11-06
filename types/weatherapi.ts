@@ -28,6 +28,7 @@ export type WeatherData = {
 
 export type WeatherTimeMomentData = {
   time?: string;
+  isDay?: number;
   interval?: number;
   temperature?: number;
   apparentTemperature?: number;

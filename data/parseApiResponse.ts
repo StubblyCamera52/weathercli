@@ -1,4 +1,4 @@
-import type { WeatherData, WeatherTimeRangeData } from "../types/weatherapi";
+import type { WeatherData, WeatherTimeMomentData, WeatherTimeRangeData } from "../types/weatherapi";
 
 type OpenMeteoApiResponse = {
   latitude: number;
@@ -40,6 +40,7 @@ type OpenMeteoApiResponse = {
   };
   current: {
     time: string;
+    is_day: number;
     interval: number;
     temperature_2m: number;
     relative_humidity_2m: number;
@@ -242,6 +243,14 @@ export function parseOpenMeteoResponse(response: string): WeatherData {
     "temperature": responseObject.hourly.temperature_2m,
     "weatherCode": responseObject.hourly.weather_code,
   };
+
+  let parsedCurrentData: WeatherTimeMomentData = {
+    "time": responseObject.current.time,
+    "apparentTemperature": responseObject.current.apparent_temperature,
+    "temperature": responseObject.current.temperature_2m,
+    "isDay": responseObject.current.is_day,
+    "weatherCode": responseObject.current.weather_code,
+  }
 
   parsedWeatherData.hourly = parsedHourlyData;
 

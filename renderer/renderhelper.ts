@@ -82,6 +82,15 @@ function calcMaxGridCellsXYFromTermSize(termWidth: number, termHeight: number): 
   return [maxCellsX, maxCellsY];
 }
 
+function findFreeBlockInGridMatrix(grid: boolean[][], itemWidth: number, itemHeight: number): [number, number] {
+  let regMatchExpr = "^"+"0".repeat(itemWidth)+"$[01]"
+
+  let gridRep = 
+
+
+  return [0,0];
+}
+
 // ┌───┐
 // │.  │
 // └───┘

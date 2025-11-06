@@ -1,6 +1,6 @@
 import { parseOpenMeteoResponse } from "./data/parseApiResponse";
 import { calcBlockDimensionsGivenGridSize, calcMaxGridCellsXYFromTermSize, reduceCharsToStrings } from "./renderer/renderhelper";
-import { HourlyTemperatureAndConditions } from "./renderer/weathermodules";
+import { CurrentConditions, HourlyTemperatureAndConditions } from "./renderer/weathermodules";
 import type { Matrix2DChar, RenderBlock } from "./types/block";
 import type { WeatherData } from "./types/weatherapi";
 import { generateOutputArray } from "./utils/consolehelper";
@@ -12,17 +12,54 @@ let testApiData = await Bun.file("data/sampledata.json").text()
 let testWeatherData = parseOpenMeteoResponse(testApiData);
 
 let renderBlocks: RenderBlock[] = [
+  new CurrentConditions(),
   new HourlyTemperatureAndConditions()
 ]
 
-let [gridCellsMX, gridCellsMY] = calcMaxGridCellsXYFromTermSize(numColumns, numRows);
+// gonna use a top-left decreasing algorithm for grid placement
 
-// grid of 5x5 cells for 100x40 console
+let renderOrder: number[] = [...renderBlocks.keys()];
 
-for (let block of renderBlocks) {
-  let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(numColumns, numRows, gridCellsMX, gridCellsMY, block.gridWidth, block.gridHeight);
+function updateBlockRenderStrings() {
+  renderOrder = [...renderBlocks.keys()];
 
-  block.updateRenderString(sizeW, sizeH, 1, 1, testWeatherData);
+  [numColumns,numRows] = process.stdout.getWindowSize();
+  
+  let [gridCellsMX, gridCellsMY] = calcMaxGridCellsXYFromTermSize(numColumns, numRows);
+
+  renderOrder.sort((a, b) => {
+    // @ts-expect-error
+    let area1 = renderBlocks[a].gridWidth * renderBlocks[a].gridHeight;
+    if (area1 == 0) return 1;
+    // @ts-expect-error
+    let area2 = renderBlocks[b].gridWidth * renderBlocks[b].gridHeight;
+    if (area2 == 0) return -1;
+
+    return area1 - area2;
+  }); // sort descending by area
+
+  let blockPositions: Array<[number, number]> = [];
+
+
+  let grid: boolean[][] = Array.from({length: gridCellsMX}).map(() => Array.from({length: gridCellsMY}).fill(false)) as boolean[][];
+
+  for (let block of renderBlocks) {
+    let itemWidth = block.gridWidth;
+    let itemHeight = block.gridHeight;
+
+    
+  }
+
+
+  }
+
+  // for (let block of renderBlocks) {
+  //   let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(numColumns, numRows, gridCellsMX, gridCellsMY, block.gridWidth, block.gridHeight);
+
+
+
+  //   block.updateRenderString(sizeW, sizeH, 1, 1, testWeatherData);
+  // }
 }
 
 console.write('\x1B[?25l'); // hides cursor

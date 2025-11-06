@@ -57,6 +57,60 @@ function convertWMOCodeToString(code?: number): string {
   }
 }
 
+
+export class CurrentConditions implements RenderBlock {
+  title = "Current Conditions";
+  gridWidth = 0;
+  gridHeight = 2;
+  border = "none" as "none";
+  renderString = "";
+  constructor() {};
+  updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
+    let midCol = posX+Math.floor(width/2)-1;
+    let midRow = posY+Math.floor(height/2)-1;
+    let moveToMidCmd = generateMoveToCmd(midCol, midRow);
+    let moveToCornerCmd = generateMoveToCmd(posX, posY);
+    let output_string = "";
+
+    let temp = 0;
+    let feels_like = 0;
+    let is_day = 0;
+    let WMOCode = -1;
+
+    if (data.current?.weatherCode) {
+      WMOCode = data.current.weatherCode;
+    }
+
+    let wmo_string = convertWMOCodeToString(WMOCode)
+
+    if (data.current?.temperature) {
+      temp = data.current.temperature;
+    }
+
+    if (data.current?.apparentTemperature) {
+      feels_like = data.current.apparentTemperature;
+    }
+
+    if (data.current?.isDay) {
+      is_day = data.current.isDay;
+    }
+
+    output_string = output_string.concat(moveToMidCmd, "\x1b[1D\x1b[2A", temp+"°C"); // renders temp
+    output_string = output_string.concat(moveToMidCmd, "\x1b[1A\x1b[6D", "Feels like "+feels_like+"°C"); // feels like
+    output_string = output_string.concat(moveToMidCmd, "\x1b["+Math.floor(wmo_string.length/2)+"D", wmo_string);
+
+    if (is_day == 1) {
+      output_string = output_string.concat(moveToMidCmd, "\x1b[1B", "☀️");
+    } else {
+      output_string = output_string.concat(moveToMidCmd, "\x1b[1B", "🌙");
+    }
+
+    this.renderString = output_string;
+
+    return;
+  };
+}
+
 /*
 
       100°C
@@ -71,7 +125,6 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
     gridWidth = 0;
     gridHeight = 1;
     border = "solid" as "solid"; // bruh
-    priority = 0;
     renderString = "";
     constructor() {};
     updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
