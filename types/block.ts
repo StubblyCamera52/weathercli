@@ -5,16 +5,22 @@ type oneOrZero = "1" | "0";
 
 // regexp for matching open space: 0{4}(0|1){4}0{4}
 
+// 11111
+// 11111
+// 11100
+// 01100
+// 00000
+
 export class RenderGrid {
   width: number;
   height: number;
   private grid: Array<Array<boolean>>; // true means something is there, false means free space
-  private gridRep!: string; // tsc being dum again
+  gridRep!: string; // tsc being dum again
 
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
-    this.grid = Array.from({length: width}).map(() => Array.from({length: height}).fill(false)) as boolean[][];
+    this.grid = Array.from({length: height}).map(() => Array.from({length: width}).fill(false)) as boolean[][];
     this.regenerateGridRep();
   }
 
@@ -25,7 +31,7 @@ export class RenderGrid {
   checkForOpenSpace(blockWidth: number, blockHeight: number): [number, number] | null {
     // 0{x}((0|1){gridw-x}0{x}){y-1}
 
-    let amountOfNumbersBetweenNextRowMatch = blockWidth - this.width;
+    let amountOfNumbersBetweenNextRowMatch = this.width-blockWidth;
     let openSpaceExpr = new RegExp(`0{${blockWidth}}((0|1){${amountOfNumbersBetweenNextRowMatch}}0{${blockWidth}}){${blockHeight-1}}`); // matches to an open block;
     let openSpaceIdx = openSpaceExpr.exec(this.gridRep);
 
@@ -37,24 +43,28 @@ export class RenderGrid {
   }
 
   addBlockToGrid(blockWidth: number, blockHeight: number, posX: number, posY: number): void {
-    this.grid.map((value, index) => {
+    this.grid = this.grid.map((value, index) => {
       if (posY > index || posY+blockHeight <= index) return value; // if this is not the correct row, dont update
       return value.map((value2, index2) => {
-        if (posX > index2 || posX+blockWidth <= index2) return value; // if this is not the correct column, dont update
+        if (posX > index2 || posX+blockWidth <= index2) return value2; // if this is not the correct column, dont update
         return true;
       });
     });
+
+    this.regenerateGridRep();
   }
 
   // same as above but sets to false instead of true
   removeBlockFromGrid(blockWidth: number, blockHeight: number, posX: number, posY: number): void {
-    this.grid.map((value, index) => {
+    this.grid = this.grid.map((value, index) => {
       if (posY > index || posY+blockHeight <= index) return value; // if this is not the correct row, dont update
       return value.map((value2, index2) => {
-        if (posX > index2 || posX+blockWidth <= index2) return value; // if this is not the correct column, dont update
+        if (posX > index2 || posX+blockWidth <= index2) return value2; // if this is not the correct column, dont update
         return false;
       });
     });
+
+    this.regenerateGridRep();
   }
 }
 

@@ -61,7 +61,7 @@ function convertWMOCodeToString(code?: number): string {
 export class CurrentConditions implements RenderBlock {
   title = "Current Conditions";
   gridWidth = 0;
-  gridHeight = 2;
+  gridHeight = 1;
   border = "none" as "none";
   renderString = "";
   constructor() {};
@@ -185,4 +185,52 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
       
       return;
     };
+}
+
+export class TwoByTwoTestBlock implements RenderBlock {
+  title = "TwoByTwoTest";
+  gridWidth = 2;
+  gridHeight = 2;
+  border = "none" as "none"; // bruh
+  renderString = "";
+  constructor() {};
+  updateRenderString (width: number, height: number, posX: number, posY: number, data: WeatherData): void {
+    this.renderString = addSolidBorder(width, height, posX, posY, "");
+  }
+}
+
+export class OneByOneTestBlock implements RenderBlock {
+  title = "OneByOneTest";
+  gridWidth = 1;
+  gridHeight = 1;
+  border = "none" as "none"; // bruh
+  renderString = "";
+  constructor() {};
+  updateRenderString (width: number, height: number, posX: number, posY: number, data: WeatherData): void {
+    this.renderString = addSolidBorder(width, height, posX, posY, "");
+  }
+}
+
+export class TwoByOneTestBlock implements RenderBlock {
+  title = "TwoByOneTest";
+  gridWidth = 2;
+  gridHeight = 1;
+  border = "none" as "none"; // bruh
+  renderString = "";
+  constructor() {};
+  updateRenderString (width: number, height: number, posX: number, posY: number, data: WeatherData): void {
+    this.renderString = addSolidBorder(width, height, posX, posY, "");
+  }
+}
+
+export class OneByThreeTestBlock implements RenderBlock {
+  title = "OneByThreeTest";
+  gridWidth = 1;
+  gridHeight = 3;
+  border = "none" as "none"; // bruh
+  renderString = "";
+  constructor() {};
+  updateRenderString (width: number, height: number, posX: number, posY: number, data: WeatherData): void {
+    this.renderString = addSolidBorder(width, height, posX, posY, "");
+  }
 }

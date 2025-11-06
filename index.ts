@@ -1,7 +1,7 @@
 import { parseOpenMeteoResponse } from "./data/parseApiResponse";
 import { calcBlockDimensionsGivenGridSize, calcMaxGridCellsXYFromTermSize, reduceCharsToStrings } from "./renderer/renderhelper";
-import { CurrentConditions, HourlyTemperatureAndConditions } from "./renderer/weathermodules";
-import type { Matrix2DChar, RenderBlock } from "./types/block";
+import { CurrentConditions, HourlyTemperatureAndConditions, OneByOneTestBlock, TwoByTwoTestBlock } from "./renderer/weathermodules";
+import { RenderGrid, type Matrix2DChar, type RenderBlock } from "./types/block";
 import type { WeatherData } from "./types/weatherapi";
 import { generateOutputArray } from "./utils/consolehelper";
 
@@ -13,19 +13,23 @@ let testWeatherData = parseOpenMeteoResponse(testApiData);
 
 let renderBlocks: RenderBlock[] = [
   new CurrentConditions(),
-  new HourlyTemperatureAndConditions()
+  new HourlyTemperatureAndConditions(),
+  new OneByOneTestBlock(),
+  new TwoByTwoTestBlock(),
 ]
 
 // gonna use a top-left decreasing algorithm for grid placement
 
-let renderOrder: number[] = [...renderBlocks.keys()];
+let renderOrder: number[] = [];
 
 function updateBlockRenderStrings() {
-  renderOrder = [...renderBlocks.keys()];
+  renderOrder = []; // list of renderblock indexes to render, in order;
 
   [numColumns,numRows] = process.stdout.getWindowSize();
   
   let [gridCellsMX, gridCellsMY] = calcMaxGridCellsXYFromTermSize(numColumns, numRows);
+
+  let renderGrid = new RenderGrid(gridCellsMX, gridCellsMY);
 
   renderOrder.sort((a, b) => {
     // @ts-expect-error
@@ -43,17 +47,32 @@ function updateBlockRenderStrings() {
 
   
 
-  for (let index of renderOrder) {
-    if (!renderBlocks[index]) continue;
+  for (let i = 0; i < renderBlocks.length; i++) {
+    if (!renderBlocks[i]) continue;
 
-    let itemWidth = renderBlocks[index].gridWidth;
-    let itemHeight = renderBlocks[index].gridHeight;
+    let itemWidth = renderBlocks[i]!.gridWidth;
+    let itemHeight = renderBlocks[i]!.gridHeight; // this should not be undefined
 
+    if (itemWidth == 0) itemWidth = gridCellsMX;
+    if (itemHeight == 0) itemHeight = 1;
 
+    let pos = renderGrid.checkForOpenSpace(itemWidth, itemHeight);
+    if (!pos) continue;
+    renderGrid.addBlockToGrid(itemWidth, itemHeight, pos[0], pos[1]);
+    blockPositions.push(pos);
+    renderOrder.push(i);
   }
 
+  //console.log(renderGrid.gridRep);
 
-  }
+  renderOrder.forEach((id, idx) => {
+    
+  });
+}
+
+updateBlockRenderStrings();
+
+process.exit(0);
 
   // for (let block of renderBlocks) {
   //   let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(numColumns, numRows, gridCellsMX, gridCellsMY, block.gridWidth, block.gridHeight);
@@ -62,7 +81,6 @@ function updateBlockRenderStrings() {
 
   //   block.updateRenderString(sizeW, sizeH, 1, 1, testWeatherData);
   // }
-}
 
 console.write('\x1B[?25l'); // hides cursor
 console.write('\x1B[H'); // sets cursor to home pos (0,0)

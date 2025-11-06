@@ -1,6 +1,9 @@
 import type { NumberLiteralType } from "typescript";
 import type { Matrix2DChar } from "../types/block";
 
+export const GRID_CELL_SIZE_X = 14;
+export const GRID_CELL_SIZE_Y = 5;
+
 function generateBlankCharArray(width: number, height: number): Matrix2DChar {
   let output: Matrix2DChar = [];
 
@@ -73,11 +76,8 @@ function generateMoveToCmd(col: number, row: number): string {
 }
 
 function calcMaxGridCellsXYFromTermSize(termWidth: number, termHeight: number): [number, number] {
-  const minCellSizeX = 14;
-  const minCellSizeY = 5;
-
-  const maxCellsX = Math.floor(termWidth/minCellSizeX);
-  const maxCellsY = Math.floor(termHeight/minCellSizeY);
+  const maxCellsX = Math.floor(termWidth/GRID_CELL_SIZE_X);
+  const maxCellsY = Math.floor(termHeight/GRID_CELL_SIZE_Y);
 
   return [maxCellsX, maxCellsY];
 }
