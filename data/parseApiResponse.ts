@@ -250,9 +250,13 @@ export function parseOpenMeteoResponse(response: string): WeatherData {
     "temperature": responseObject.current.temperature_2m,
     "isDay": responseObject.current.is_day,
     "weatherCode": responseObject.current.weather_code,
+    "windDirection": responseObject.current.wind_direction_10m,
+    "windGustSpeed": responseObject.current.wind_gusts_10m,
+    "windSpeed": responseObject.current.wind_speed_10m
   }
 
   parsedWeatherData.hourly = parsedHourlyData;
+  parsedWeatherData.current = parsedCurrentData;
 
   return parsedWeatherData;
 }

@@ -1,5 +1,6 @@
 import type { Matrix2DChar, RenderBlock } from "../types/block";
 import type { WeatherData } from "../types/weatherapi";
+import { WIND_ART } from "./asciiart";
 import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateBlankCharArray, generateMoveToCmd } from "./renderhelper";
 
 // wmo weather codes
@@ -136,6 +137,8 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
       let output_string = "";
       output_string = addSolidBorder(width, height, posX, posY, output_string);
 
+      output_string = output_string.concat(generateMoveToCmd(posX+1, posY), this.title);
+
       let times = data.hourly?.time;
       let temps = data.hourly?.temperature;
       let conditions = data.hourly?.weatherCode;
@@ -186,6 +189,31 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
       return;
     };
 }
+
+export class CurrentWind implements RenderBlock {
+  title = "Current Wind";
+  gridWidth = 2;
+  gridHeight = 2;
+  border = "solid" as "solid";
+  renderString = "";
+  constructor() {};
+  updateRenderString (width: number, height: number, posX: number, posY: number, data: WeatherData): void {
+    let midCol = posX+Math.floor(width/2);
+    let midRow = posY+Math.floor(height/2);
+    let moveToMidCmd = generateMoveToCmd(midCol, midRow);
+    let moveToCornerCmd = generateMoveToCmd(posX, posY);
+
+    let outputString = addSolidBorder(width, height, posX, posY, "");
+    outputString = outputString.concat(generateMoveToCmd(posX+1, posY), this.title);
+    outputString = outputString.concat(moveToMidCmd, "\x1b[2A\x1b[2D", WIND_ART[0]);
+    if (data.current?.windDirection != null) {
+      outputString = outputString.concat(generateMoveToCmd(posX+1, posY+1), data.current.windDirection.toString(), "°");
+    }
+
+    this.renderString = outputString;
+  }
+}
+
 
 export class TwoByTwoTestBlock implements RenderBlock {
   title = "TwoByTwoTest";
