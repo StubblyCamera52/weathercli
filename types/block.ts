@@ -43,18 +43,25 @@ export class RenderGrid {
   }
 
   private regenerateGridRep() {
-    this.gridRep = this.grid.flat().map((item) => {return item ? "1" : "0" as string}).reduce((prev, curr) => {return prev.concat(curr)}); // flattens array, and converts to a string of 1's and 0's (useful for finding space)
+    let rep = this.grid.flat().map((item) => {return item ? "1" : "0" as string}).reduce((prev, curr) => {return prev.concat(curr)}); // flattens array, and converts to a string of 1's and 0's (useful for finding space)
+    let everyRowExpr = new RegExp(`(.{${this.width}})`, "g"); // expr to find end of every row
+    this.gridRep = rep.replace(everyRowExpr, "$1 ");
+    //console.log(this.gridRep)
   }
 
   checkForOpenSpace(blockWidth: number, blockHeight: number): [number, number] | null {
     // 0{x}((0|1){gridw-x}0{x}){y-1}
+    // new expr for fixing wrapping 0{x}((?=[10]*\s[10]*).{1+gridw-x}0{x}){y-1} // new one checks for 1 whitespace bc its a newline and i added space between rows in the rep. this helps with the block wrapping bug
 
-    let amountOfNumbersBetweenNextRowMatch = this.width-blockWidth;
-    let openSpaceExpr = new RegExp(`0{${blockWidth}}((0|1){${amountOfNumbersBetweenNextRowMatch}}0{${blockWidth}}){${blockHeight-1}}`); // matches to an open block;
+    let amountOfNumbersBetweenNextRowMatch = (this.width-blockWidth)+1;
+    let openSpaceExpr = new RegExp(`0{${blockWidth}}((?=[10]* [10]*).{${amountOfNumbersBetweenNextRowMatch}}0{${blockWidth}}){${blockHeight-1}}`); // matches to an open block;
     let openSpaceIdx = openSpaceExpr.exec(this.gridRep);
 
+    //console.log(this.gridRep);
+    
+
     if (openSpaceIdx) {
-      return [openSpaceIdx.index % this.width, Math.trunc(openSpaceIdx.index / this.width)]; // converts index to grid cell coords
+      return [openSpaceIdx.index % (this.width+1), Math.trunc(openSpaceIdx.index / (this.width+1))]; // converts index to grid cell coords
     } else {
       return null;
     }
