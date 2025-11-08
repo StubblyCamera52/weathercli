@@ -1,7 +1,7 @@
 import type { Matrix2DChar, RenderBlock } from "../types/block";
 import type { WeatherData } from "../types/weatherapi";
 import { pointOnCircleFromAngleDegrees, SUNSET_SUNRISE_ART } from "./asciiart";
-import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateClearBlockString, generateMoveToCmd } from "./renderhelper";
+import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateBlankCharArray, generateClearBlockString, generateMoveToCmd, reduceCharsToStrings } from "./renderhelper";
 
 // wmo weather codes
 // 0	Clear sky
@@ -58,6 +58,12 @@ function convertWMOCodeToString(code?: number): string {
   }
 }
 
+type Raindrop = {
+  x: number,
+  y: number,
+  speed: number,
+  character: string;
+}
 
 export class CurrentConditions implements RenderBlock {
   title = "Current Conditions";
@@ -65,8 +71,39 @@ export class CurrentConditions implements RenderBlock {
   gridHeight = 2;
   border = "none" as "none";
   renderString = "";
-  isAnimated = false;
-  constructor() {};
+  isAnimated = true;
+  private raindrops: Raindrop[] = [];
+  constructor() {
+    for (let i = 0; i < 100; i++) {
+      let posx = Math.floor(Math.random()*78);
+      let posy = Math.floor(Math.random()*10);
+      let dropspeed = Math.floor(Math.random()*7)+5;
+      let character = ["|", ".", "`"][Math.floor(Math.random()*3)]!;
+      this.raindrops.push({x: posx, y: posy, speed: dropspeed, character: character})
+    }
+  };
+  animationUpdateFunc(frameId: number, dt: number): void {
+    this.raindrops.forEach((drop, idx) => {
+      //console.write(generateMoveToCmd(drop.x, Math.floor(drop.y)), " ");
+      drop.y += drop.speed*dt;
+      if (drop.y > 10) {
+        drop.y = 0;
+      }
+    });
+    
+    let renderArray = generateBlankCharArray(80, 10);
+    this.raindrops.forEach((drop, idx) => {
+      renderArray[Math.floor(drop.y)]![drop.x] = drop.character;
+    });
+
+    //process.stdout.write(generateMoveToCmd(1,2));
+
+    let render = "\x1b[1;34m\x1b[H".concat(reduceCharsToStrings(renderArray));
+
+    render = render.concat("\x1b[H", this.renderString);
+
+    process.stdout.write(render);
+  }
   updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
     let midCol = posX+Math.floor(width/2);
     let midRow = posY+Math.floor(height/2);
@@ -208,9 +245,9 @@ export class CurrentWind implements RenderBlock {
   private blockWidth = -1;
   private blockHeight = -1;
   private windDirection = 0;
-  isAnimated = true;
+  isAnimated = false;
   constructor() {};
-  animationUpdateFunc (frameId: number): void {
+  animationUpdateFunc (frameId: number,  dt: number): void {
     let midCol = this.blockCol+Math.floor(this.blockWidth/2);
     let midRow = this.blockRow+Math.floor(this.blockHeight/2);
     let moveToMidCmd = generateMoveToCmd(midCol, midRow);

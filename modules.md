@@ -1,7 +1,7 @@
 # weather modules to add checklist
 
 - [x] Wind
-- [ ] Sunset/Sunrise
+- [x] Sunset/Sunrise
 - [ ] Precipitation Inches
 - [ ] Moon Phases?
 - [ ] Multi-Day Forecast

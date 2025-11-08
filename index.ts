@@ -79,7 +79,7 @@ function updateBlockRenderStrings() {
 
 updateBlockRenderStrings();
 
-//console.write('\x1B[?25l'); // hides cursor
+console.write('\x1B[?25l'); // hides cursor
 console.write('\x1B[H'); // sets cursor to home pos (0,0)
 
 function render() {
@@ -92,11 +92,15 @@ function render() {
 }
 
 let frameCount = 0;
+let last_time = performance.now();
 
 function animationLoop() {
   frameCount++;
   blocksToAnimate.forEach((blockIdx) => {
-    renderBlocks[blockIdx]!.animationUpdateFunc!(frameCount*5);
+    const current_time = performance.now();
+    const dt = current_time-last_time;
+    last_time = current_time;
+    renderBlocks[blockIdx]!.animationUpdateFunc!(frameCount, dt/1000);
   });
 }
 
@@ -111,7 +115,7 @@ process.on("SIGWINCH", () => {
 
 setInterval(() => {
   animationLoop();
-}, 200);
+}, 30);
 
 
 

@@ -33,7 +33,7 @@ function addSolidBorder(width: number, height: number, posX: number, posY: numbe
   return str.concat(borderGenString);
 }
 
-function reduceCharsToStrings(arr: Matrix2DChar): string[] {
+function reduceCharsToStrings(arr: Matrix2DChar): string {
   let output: string[] = [];
 
   for (const item of arr) {
@@ -44,7 +44,9 @@ function reduceCharsToStrings(arr: Matrix2DChar): string[] {
     );
   }
 
-  return output;
+  let output2 = output.reduce((str1, str2) => {return str1.concat(str2)});
+
+  return output2;
 }
 
 function calcBlockDimensionsGivenGridSize(termSizeW: number, termSizeH: number, gridCellsW: number, gridCellsH: number, blockSizeW: number, blockSizeH: number): [number, number] {
