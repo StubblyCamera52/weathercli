@@ -1,7 +1,7 @@
 import type { Matrix2DChar, RenderBlock } from "../types/block";
 import type { WeatherData } from "../types/weatherapi";
-import { WIND_ART } from "./asciiart";
-import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateBlankCharArray, generateMoveToCmd } from "./renderhelper";
+import { pointOnCircleFromAngleDegrees, WIND_ART } from "./asciiart";
+import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateMoveToCmd } from "./renderhelper";
 
 // wmo weather codes
 // 0	Clear sky
@@ -72,6 +72,11 @@ export class CurrentConditions implements RenderBlock {
     let moveToMidCmd = generateMoveToCmd(midCol, midRow);
     let moveToCornerCmd = generateMoveToCmd(posX, posY);
     let output_string = "";
+
+    if (data.current?.time) {
+      let current_time = new Date(data.current.time);
+      output_string = output_string.concat(moveToCornerCmd, "Forecast from: ", current_time.toTimeString());
+    }
 
     let temp = 0;
     let feels_like = 0;
@@ -205,9 +210,21 @@ export class CurrentWind implements RenderBlock {
 
     let outputString = addSolidBorder(width, height, posX, posY, "");
     outputString = outputString.concat(generateMoveToCmd(posX+1, posY), this.title);
-    outputString = outputString.concat(moveToMidCmd, "\x1b[2A\x1b[2D", WIND_ART[0]);
     if (data.current?.windDirection != null) {
+      data.current.windDirection = 0;
+      let [tipCol, tipRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, data.current.windDirection);
+      let [buttCol, buttRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, (data.current.windDirection+180)%360);
+      outputString = outputString.concat(generateMoveToCmd(midCol, midRow-1), "·");
+      outputString = outputString.concat(generateMoveToCmd(tipCol, tipRow), "*", generateMoveToCmd(buttCol, buttRow), "■");
       outputString = outputString.concat(generateMoveToCmd(posX+1, posY+1), data.current.windDirection.toString(), "°");
+    }
+
+    if (data.current?.windSpeed != null) {
+      outputString = outputString.concat(generateMoveToCmd(posX+1, posY+height-2), data.current.windSpeed.toString(), "kn")
+    }
+
+    if (data.current?.windGustSpeed != null) {
+      outputString = outputString.concat(generateMoveToCmd(posX+width-("Gusts::kn".concat(data.current.windGustSpeed.toString()).length+1), posY+height-2), "Gusts: ", data.current.windGustSpeed.toString(), "kn")
     }
 
     this.renderString = outputString;

@@ -41,9 +41,6 @@ function updateBlockRenderStrings() {
 
   let blockPositions: Array<[number, number]> = []; // maps to render order
 
-
-  
-
   for (let i = 0; i < renderBlocks.length; i++) {
     if (!renderBlocks[i]) continue;
 
@@ -76,7 +73,7 @@ function updateBlockRenderStrings() {
 
 updateBlockRenderStrings();
 
-//console.write('\x1B[?25l'); // hides cursor
+console.write('\x1B[?25l'); // hides cursor
 console.write('\x1B[H'); // sets cursor to home pos (0,0)
 
 // setInterval(() => {

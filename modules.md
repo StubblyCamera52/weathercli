@@ -7,3 +7,11 @@
 - [ ] Multi-Day Forecast
 - [ ] Weather Averages
 - [ ] Animations on the current module?
+
+## todo list
+
+- [ ] make more modules
+- [ ] add animations?
+- [ ] selective rendering?
+- [ ] customization
+- [ ] colors
