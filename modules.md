@@ -6,7 +6,7 @@
 - [ ] Moon Phases?
 - [ ] Multi-Day Forecast
 - [ ] Weather Averages
-- [ ] Animations on the current module?
+- [?] Animations on the current module?
 
 ## todo list
 
@@ -16,3 +16,5 @@
 - [x] selective rendering?
 - [ ] customization
 - [ ] colors
+- [ ] select location
+- [ ] hook up to actual api

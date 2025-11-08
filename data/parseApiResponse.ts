@@ -248,6 +248,11 @@ export function parseOpenMeteoResponse(response: string): WeatherData {
     "time": responseObject.daily.time,
     "sunset": responseObject.daily.sunset,
     "sunrise": responseObject.daily.sunrise,
+    "temperatureMax": responseObject.daily.temperature_2m_max,
+    "temperatureMin": responseObject.daily.temperature_2m_min,
+    "precipitation": responseObject.daily.precipitation_sum,
+    "precipitationProbability": responseObject.daily.precipitation_probability_mean,
+    "weatherCode": responseObject.daily.weather_code,
   }
 
   let parsedCurrentData: WeatherTimeMomentData = {

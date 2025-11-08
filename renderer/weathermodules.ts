@@ -73,36 +73,40 @@ export class CurrentConditions implements RenderBlock {
   renderString = "";
   isAnimated = true;
   private raindrops: Raindrop[] = [];
+  private wmocode: number = -1;
   constructor() {
     for (let i = 0; i < 100; i++) {
       let posx = Math.floor(Math.random()*78);
       let posy = Math.floor(Math.random()*10);
-      let dropspeed = Math.floor(Math.random()*7)+5;
+      let dropspeed = Math.floor(Math.random()*5)+5;
       let character = ["|", ".", "`"][Math.floor(Math.random()*3)]!;
       this.raindrops.push({x: posx, y: posy, speed: dropspeed, character: character})
     }
   };
   animationUpdateFunc(frameId: number, dt: number): void {
-    this.raindrops.forEach((drop, idx) => {
-      //console.write(generateMoveToCmd(drop.x, Math.floor(drop.y)), " ");
-      drop.y += drop.speed*dt;
-      if (drop.y > 10) {
-        drop.y = 0;
-      }
-    });
-    
-    let renderArray = generateBlankCharArray(80, 10);
-    this.raindrops.forEach((drop, idx) => {
-      renderArray[Math.floor(drop.y)]![drop.x] = drop.character;
-    });
+    // its raining
+    if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(this.wmocode)) {
+      this.raindrops.forEach((drop, idx) => {
+        //console.write(generateMoveToCmd(drop.x, Math.floor(drop.y)), " ");
+        drop.y += drop.speed*dt;
+        if (drop.y > 10) {
+          drop.y = 0;
+        }
+      });
+      
+      let renderArray = generateBlankCharArray(80, 10);
+      this.raindrops.forEach((drop, idx) => {
+        renderArray[Math.floor(drop.y)]![drop.x] = drop.character;
+      });
 
-    //process.stdout.write(generateMoveToCmd(1,2));
+      //process.stdout.write(generateMoveToCmd(1,2));
 
-    let render = "\x1b[1;34m\x1b[H".concat(reduceCharsToStrings(renderArray));
+      let render = "\x1b[34m\x1b[H".concat(reduceCharsToStrings(renderArray));
 
-    render = render.concat("\x1b[H", this.renderString);
+      render = render.concat("\x1b[H\x1b[37m", this.renderString);
 
-    process.stdout.write(render);
+      process.stdout.write(render);
+    }
   }
   updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
     let midCol = posX+Math.floor(width/2);
@@ -124,6 +128,8 @@ export class CurrentConditions implements RenderBlock {
     if (data.current?.weatherCode) {
       WMOCode = data.current.weatherCode;
     }
+
+    this.wmocode = WMOCode;
 
     let wmo_string = convertWMOCodeToString(WMOCode)
 
@@ -335,6 +341,42 @@ export class SunsetSunrise implements RenderBlock {
     outputString = outputString.concat(generateMoveToCmd(posX+1, posY), this.title);
 
     outputString = outputString.concat(moveToMidCmd, is_sunset ? SUNSET_SUNRISE_ART.set : SUNSET_SUNRISE_ART.rise);
+
+    this.renderString = outputString;
+  }
+}
+
+export class DailyOverview implements RenderBlock {
+  title = "Today";
+  gridWidth = 2;
+  gridHeight = 2;
+  border = "solid" as "solid"; // bruh
+  renderString = "";
+  isAnimated = false;
+  constructor() {};
+  updateRenderString(width: number, height: number, posX: number, posY: number, data: WeatherData): void {
+    let midCol = posX+Math.floor(width/2);
+    let midRow = posY+Math.floor(height/2);
+    let moveToMidCmd = generateMoveToCmd(midCol, midRow);
+    let moveToCornerCmd = generateMoveToCmd(posX, posY);
+    let current_date = new Date().toISOString().slice(0, 10);
+    let date_index = data.daily?.time?.indexOf(current_date) || -1;
+
+    let outputString = addSolidBorder(width, height, posX, posY, "");
+
+    outputString = outputString.concat(generateMoveToCmd(posX+1, posY), this.title);
+
+    let precipitationSum = data.daily?.precipitation?.at(date_index) || 0;
+    let precipitationProbability = data.daily?.precipitationProbability?.at(date_index) || 0;
+    let temperatureMax = data.daily?.temperatureMax?.at(date_index) || 0;
+    let temperatureMin = data.daily?.temperatureMin?.at(date_index) || 0;
+    let weatherCode = data.daily?.weatherCode?.at(date_index) || -1;
+    let weatherString = convertWMOCodeToString(weatherCode);
+
+    outputString = outputString.concat(generateMoveToCmd(midCol-3, midRow-2),"💧", precipitationSum.toString(), "mm");
+    outputString = outputString.concat(generateMoveToCmd(midCol-5, midRow-1), precipitationProbability.toString(), "% Chance");
+    outputString = outputString.concat(generateMoveToCmd(midCol-(Math.floor(weatherString.length/2)), midRow), weatherString);
+    outputString = outputString.concat(generateMoveToCmd(midCol-7, midRow+1), temperatureMin.toString(), "°C - ", temperatureMax.toString(), "°C");
 
     this.renderString = outputString;
   }
