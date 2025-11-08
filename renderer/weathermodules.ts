@@ -58,11 +58,58 @@ function convertWMOCodeToString(code?: number): string {
   }
 }
 
-type Raindrop = {
+
+// rain, snow, ?hail?
+type WeatherDrop = {
   x: number,
   y: number,
   speed: number,
-  character: string;
+  floating: boolean,
+  character: string,
+}
+
+function generateSnow(width: number, height: number, count: number, minSpeed: number, maxSpeed: number, intensity: 1 | 2 | 3): WeatherDrop[] {
+  let snow: WeatherDrop[] = [];
+
+  for (let i = 0; i < count; i++) {
+    let posx = Math.floor(Math.random()*width);
+    let posy = Math.floor(Math.random()*height);
+    let dropspeed = Math.floor(Math.random()*maxSpeed)+minSpeed;
+    let character = [".", ",", "|"][intensity-1]!;
+    snow.push({x: posx, y: posy, speed: dropspeed, character: character, floating: true});
+  }
+
+  return snow;
+}
+
+function generateRain(width: number, height: number, count: number, minSpeed: number, maxSpeed: number, intensity: 1 | 2 | 3): WeatherDrop[] {
+  let rain: WeatherDrop[] = [];
+
+  for (let i = 0; i < count; i++) {
+    let posx = Math.floor(Math.random()*width);
+    let posy = Math.floor(Math.random()*height);
+    let dropspeed = Math.floor(Math.random()*maxSpeed)+minSpeed;
+    let character = [".", ",", "|"][intensity-1]!;
+    rain.push({x: posx, y: posy, speed: dropspeed, character: character, floating: false});
+  }
+
+  return rain;
+}
+
+function updateWeatherDrops(drops: WeatherDrop[], bottom: number, dt: number): WeatherDrop[] {
+  let updatedDrops = drops;
+
+  updatedDrops.forEach((drop, idx) => {
+    drop.y += drop.speed*dt;
+    if (drop.floating) {
+      drop.x += Math.round((Math.random()*2)-1)
+    }
+    if (drop.y > bottom) {
+      drop.y = 0;
+    }
+  });
+
+  return updatedDrops;
 }
 
 export class CurrentConditions implements RenderBlock {
@@ -72,40 +119,51 @@ export class CurrentConditions implements RenderBlock {
   border = "none" as "none";
   renderString = "";
   isAnimated = true;
-  private raindrops: Raindrop[] = [];
-  private wmocode: number = -1;
-  constructor() {
-    for (let i = 0; i < 100; i++) {
-      let posx = Math.floor(Math.random()*78);
-      let posy = Math.floor(Math.random()*10);
-      let dropspeed = Math.floor(Math.random()*5)+5;
-      let character = ["|", ".", "`"][Math.floor(Math.random()*3)]!;
-      this.raindrops.push({x: posx, y: posy, speed: dropspeed, character: character})
-    }
-  };
+  private width = 1;
+  private height = 1;
+  private weatherDrops: WeatherDrop[] = [];
+  private wmocode = -1;
+  private previous_wmo_code = -1;
+  constructor() {};
   animationUpdateFunc(frameId: number, dt: number): void {
+    let regenDrops = false;
+    if (this.previous_wmo_code != this.wmocode) regenDrops = true;
+    this.previous_wmo_code = this.wmocode;
     // its raining
-    if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(this.wmocode)) {
-      this.raindrops.forEach((drop, idx) => {
-        //console.write(generateMoveToCmd(drop.x, Math.floor(drop.y)), " ");
-        drop.y += drop.speed*dt;
-        if (drop.y > 10) {
-          drop.y = 0;
-        }
-      });
-      
-      let renderArray = generateBlankCharArray(80, 10);
-      this.raindrops.forEach((drop, idx) => {
+    if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(this.wmocode)) {      
+      this.weatherDrops = updateWeatherDrops(this.weatherDrops, this.height-1, dt);
+
+      if (regenDrops) this.weatherDrops = generateRain(this.width, this.height-1, 50, 6, 10, 2);
+      let renderArray = generateBlankCharArray(this.width, this.height-1);
+
+      this.weatherDrops.forEach((drop, idx) => {
         renderArray[Math.floor(drop.y)]![drop.x] = drop.character;
       });
 
-      //process.stdout.write(generateMoveToCmd(1,2));
-
       let render = "\x1b[34m\x1b[H".concat(reduceCharsToStrings(renderArray));
 
-      render = render.concat("\x1b[H\x1b[37m", this.renderString);
+      render = render.concat("\x1b[H\x1b[39m", this.renderString);
 
       process.stdout.write(render);
+
+      // its snowing snow
+    } else if ([71, 73, 75, 77, 85, 86].includes(this.wmocode)) {
+      this.weatherDrops = updateWeatherDrops(this.weatherDrops, this.height-1, dt);
+
+      if (regenDrops) this.weatherDrops = generateSnow(this.width, this.height-1, 50, 4, 7, 2);
+      let renderArray = generateBlankCharArray(this.width, this.height-1);
+
+      this.weatherDrops.forEach((drop, idx) => {
+        renderArray[Math.floor(drop.y)]![drop.x] = drop.character;
+      });
+
+      let render = "\x1b[1;37m\x1b[H".concat(reduceCharsToStrings(renderArray));
+
+      render = render.concat("\x1b[H\x1b[0;39m", this.renderString);
+
+      process.stdout.write(render);
+    } else {
+      return;
     }
   }
   updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
@@ -114,6 +172,9 @@ export class CurrentConditions implements RenderBlock {
     let moveToMidCmd = generateMoveToCmd(midCol, midRow);
     let moveToCornerCmd = generateMoveToCmd(posX, posY);
     let output_string = "";
+
+    this.width = width;
+    this.height = height;
 
     if (data.current?.time) {
       let current_time = new Date(data.current.time);
@@ -130,6 +191,7 @@ export class CurrentConditions implements RenderBlock {
     }
 
     this.wmocode = WMOCode;
+    this.previous_wmo_code = -1;
 
     let wmo_string = convertWMOCodeToString(WMOCode)
 
@@ -147,7 +209,7 @@ export class CurrentConditions implements RenderBlock {
 
     output_string = output_string.concat(moveToMidCmd, "\x1b[1D\x1b[2A", temp+"°C"); // renders temp
     output_string = output_string.concat(moveToMidCmd, "\x1b[1A\x1b[6D", "Feels like "+feels_like+"°C"); // feels like
-    output_string = output_string.concat(moveToMidCmd, "\x1b["+Math.floor(wmo_string.length/2)+"D", wmo_string);
+    output_string = output_string.concat(moveToMidCmd, "\x1b["+(Math.floor(wmo_string.length/2)-1)+"D", wmo_string);
 
     if (is_day == 1) {
       output_string = output_string.concat(moveToMidCmd, "\x1b[1B", "☀️");
