@@ -21,7 +21,7 @@ import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, genera
 // ☀️🌤️⛅️☁️🌧️⛈️🌨️❄️🌫️🧊
 
 function convertWMOCodeToString(code?: number): string {
-  if (!code) {
+  if (code == null) {
     return "Unknown"
   }
 
@@ -58,6 +58,44 @@ function convertWMOCodeToString(code?: number): string {
   }
 }
 
+function convertWMOCodeToIntensity(code: number) {
+  if (code == null) {
+    return 1;
+  }
+
+  switch (code) {
+    case 0: return 1;
+    case 1: return 1;
+    case 2: return 1;
+    case 3: return 1;
+    case 45:
+    case 48: return 1;
+    case 56:
+    case 51: return 1;
+    case 53: return 2;
+    case 57:
+    case 55: return 3;
+    case 66:
+    case 61: return 1;
+    case 63: return 2
+    case 67:
+    case 65: return 3;
+    case 71: return 1;
+    case 73: return 2;
+    case 75: return 3;
+    case 77: return 2;
+    case 80: return 1;
+    case 81: return 2;
+    case 82: return 3;
+    case 85: return 2;
+    case 86: return 3;
+    case 96:
+    case 99:
+    case 95: return 3;
+    default: return 1;
+  }
+}
+
 
 // rain, snow, ?hail?
 type WeatherDrop = {
@@ -75,7 +113,7 @@ function generateSnow(width: number, height: number, count: number, minSpeed: nu
     let posx = Math.floor(Math.random()*width);
     let posy = Math.floor(Math.random()*height);
     let dropspeed = Math.floor(Math.random()*maxSpeed)+minSpeed;
-    let character = [".", ",", "|"][intensity-1]!;
+    let character = [".", ",", "*"][intensity-1]!;
     snow.push({x: posx, y: posy, speed: dropspeed, character: character, floating: true});
   }
 
@@ -122,8 +160,8 @@ export class CurrentConditions implements RenderBlock {
   private width = 1;
   private height = 1;
   private weatherDrops: WeatherDrop[] = [];
-  private wmocode = -1;
-  private previous_wmo_code = -1;
+  private wmocode = 0;
+  private previous_wmo_code = 0;
   constructor() {};
   animationUpdateFunc(frameId: number, dt: number): void {
     let regenDrops = false;
@@ -133,7 +171,7 @@ export class CurrentConditions implements RenderBlock {
     if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(this.wmocode)) {      
       this.weatherDrops = updateWeatherDrops(this.weatherDrops, this.height-1, dt);
 
-      if (regenDrops) this.weatherDrops = generateRain(this.width, this.height-1, 50, 6, 10, 2);
+      if (regenDrops) this.weatherDrops = generateRain(this.width, this.height-1, 50, 6, 10, convertWMOCodeToIntensity(this.wmocode));
       let renderArray = generateBlankCharArray(this.width, this.height-1);
 
       this.weatherDrops.forEach((drop, idx) => {
@@ -150,7 +188,7 @@ export class CurrentConditions implements RenderBlock {
     } else if ([71, 73, 75, 77, 85, 86].includes(this.wmocode)) {
       this.weatherDrops = updateWeatherDrops(this.weatherDrops, this.height-1, dt);
 
-      if (regenDrops) this.weatherDrops = generateSnow(this.width, this.height-1, 50, 4, 7, 2);
+      if (regenDrops) this.weatherDrops = generateSnow(this.width, this.height-1, 50, 4, 7, convertWMOCodeToIntensity(this.wmocode));
       let renderArray = generateBlankCharArray(this.width, this.height-1);
 
       this.weatherDrops.forEach((drop, idx) => {
@@ -186,7 +224,7 @@ export class CurrentConditions implements RenderBlock {
     let is_day = 0;
     let WMOCode = -1;
 
-    if (data.current?.weatherCode) {
+    if (data.current?.weatherCode != null) {
       WMOCode = data.current.weatherCode;
     }
 
@@ -276,7 +314,7 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
         if (temps[i]) {
           temp = temps[i] as number;
         }
-        if (conditions[i]) {
+        if (conditions[i] != null) {
           condition = conditions[i] as number;
         }
 

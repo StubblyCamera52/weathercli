@@ -10,6 +10,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "decimal.js": "^10.6.0",
     "openmeteo": "^1.2.2"
   }
 }

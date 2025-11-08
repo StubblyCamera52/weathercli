@@ -2,7 +2,7 @@
 
 - [x] Wind
 - [x] Sunset/Sunrise
-- [ ] Precipitation Inches
+- [x] Precipitation Inches
 - [ ] Moon Phases?
 - [ ] Multi-Day Forecast
 - [ ] Weather Averages
