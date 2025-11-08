@@ -1,0 +1,40 @@
+ /.......\
+|.........|
+|.........|
+ \......./
+
+ /.....OO\
+|.......OO|
+|.......OO| 
+ \.....OO/
+
+ 
+ /...OOOO\
+|....OOOOO|
+|....OOOOO| 
+ \...OOOO/
+
+ /..OOOOO\
+|..OOOOOOO|
+|..OOOOOOO| 
+ \..OOOOO/
+
+ /OOOOOOO\
+|OOOOOOOOO|
+|OOOOOOOOO| 
+ \OOOOOOO/
+
+ /OOOOO..\
+|OOOOOOO..|
+|OOOOOOO..| 
+ \OOOOO../
+
+ /OOOO...\
+|OOOOO....|
+|OOOOO....| 
+ \OOOO.../
+
+ /OO.....\
+|OO.......|
+|OO.......| 
+ \OO...../

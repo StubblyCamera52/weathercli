@@ -10,6 +10,26 @@ export const SUNSET_SUNRISE_ART = {
   "rise": "\x1b[3D(OOO)\x1b[3D\x1b[1A↑\x1b[2B\x1b[5D``````````",
 }
 
+export const MOON_ART: { [key: number]: string } = {
+  0: "\x1b[1A\x1b[4D/.......\\\x1b[10D\x1b[1B|.........|\x1b[11D\x1b[1B|.........|\x1b[10D\x1b[1B\\......./",
+  1: "\x1b[1A\x1b[4D/.....OO\\\x1b[10D\x1b[1B|.......OO|\x1b[11D\x1b[1B|.......OO|\x1b[10D\x1b[1B\\.....OO/",
+  2: "\x1b[1A\x1b[4D/...OOOO\\\x1b[10D\x1b[1B|....OOOOO|\x1b[11D\x1b[1B|....OOOOO|\x1b[10D\x1b[1B\\...OOOO/",
+  3: "\x1b[1A\x1b[4D/..OOOOO\\\x1b[10D\x1b[1B|..OOOOOOO|\x1b[11D\x1b[1B|..OOOOOOO|\x1b[10D\x1b[1B\\..OOOOO/",
+  4: "\x1b[1A\x1b[4D/OOOOOOO\\\x1b[10D\x1b[1B|OOOOOOOOO|\x1b[11D\x1b[1B|OOOOOOOOO|\x1b[10D\x1b[1B\\OOOOOOO/",
+  5: "\x1b[1A\x1b[4D/OOOOO..\\\x1b[10D\x1b[1B|OOOOOOO..|\x1b[11D\x1b[1B|OOOOOOO..|\x1b[10D\x1b[1B\\OOOOO../",
+  6: "\x1b[1A\x1b[4D/OOOO...\\\x1b[10D\x1b[1B|OOOOO....|\x1b[11D\x1b[1B|OOOOO....|\x1b[10D\x1b[1B\\OOOO.../",
+  7: "\x1b[1A\x1b[4D/OO.....\\\x1b[10D\x1b[1B|OO.......|\x1b[11D\x1b[1B|OO.......|\x1b[10D\x1b[1B\\OO...../"
+}
+
+
+/*
+  ;;;;;;
+;;;;;;;;;;
+;;;;;;;;;;
+  ;;;;;;
+
+*/
+
 //      ↓
 //    (---)
 // ``````````

@@ -1,6 +1,7 @@
 import type { Matrix2DChar, RenderBlock } from "../types/block";
 import type { WeatherData } from "../types/weatherapi";
-import { pointOnCircleFromAngleDegrees, SUNSET_SUNRISE_ART } from "./asciiart";
+import { calculateMoonPhase } from "../utils/astronomyhelper";
+import { MOON_ART, pointOnCircleFromAngleDegrees, SUNSET_SUNRISE_ART } from "./asciiart";
 import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateBlankCharArray, generateClearBlockString, generateMoveToCmd, reduceCharsToStrings } from "./renderhelper";
 
 // wmo weather codes
@@ -351,7 +352,7 @@ export class CurrentWind implements RenderBlock {
   private blockWidth = -1;
   private blockHeight = -1;
   private windDirection = 0;
-  isAnimated = false;
+  isAnimated = true;
   constructor() {};
   animationUpdateFunc (frameId: number,  dt: number): void {
     let midCol = this.blockCol+Math.floor(this.blockWidth/2);
@@ -477,6 +478,57 @@ export class DailyOverview implements RenderBlock {
     outputString = outputString.concat(generateMoveToCmd(midCol-5, midRow-1), precipitationProbability.toString(), "% Chance");
     outputString = outputString.concat(generateMoveToCmd(midCol-(Math.floor(weatherString.length/2)), midRow), weatherString);
     outputString = outputString.concat(generateMoveToCmd(midCol-7, midRow+1), temperatureMin.toString(), "°C - ", temperatureMax.toString(), "°C");
+
+    this.renderString = outputString;
+  }
+}
+
+export class MoonPhases implements RenderBlock {
+  title = "Moon";
+  gridWidth = 1;
+  gridHeight = 1;
+  border = "none" as "none"; // bruh
+  renderString = "";
+  isAnimated = true;
+  private phase = 0;
+  private blockCol = -1;
+  private blockRow = -1;
+  private blockWidth = -1;
+  private blockHeight = -1;
+  constructor() {};
+  animationUpdateFunc(frameId: number, dt: number): void {
+    let midCol = this.blockCol+Math.floor(this.blockWidth/2);
+    let midRow = this.blockRow+Math.floor(this.blockHeight/2);
+    let moveToMidCmd = generateMoveToCmd(midCol, midRow);
+    let moveToCornerCmd = generateMoveToCmd(this.blockCol, this.blockRow);
+
+    let outputString = generateClearBlockString(this.blockCol, this.blockRow, this.blockCol+this.blockWidth-1, this.blockRow+this.blockWidth-1);
+
+    this.phase = Math.floor(frameId/10)%8;
+
+    outputString = outputString.concat(moveToMidCmd, MOON_ART[this.phase]!);
+    outputString = outputString.concat(generateMoveToCmd(this.blockCol+1, this.blockRow), this.title);
+
+    console.write(outputString);
+  }
+  updateRenderString(width: number, height: number, posX: number, posY: number, data: WeatherData): void {
+    this.blockCol = posX;
+    this.blockRow = posY;
+    this.blockHeight = height;
+    this.blockWidth = width;
+
+    let midCol = posX+Math.floor(width/2);
+    let midRow = posY+Math.floor(height/2);
+    let moveToMidCmd = generateMoveToCmd(midCol, midRow);
+    let moveToCornerCmd = generateMoveToCmd(posX, posY);
+
+    let outputString = "";
+
+    outputString = outputString.concat(generateMoveToCmd(posX+1, posY), this.title);
+
+    let moonPhase = calculateMoonPhase();
+
+    outputString = outputString.concat(moveToMidCmd, MOON_ART[moonPhase]!);
 
     this.renderString = outputString;
   }
