@@ -1,7 +1,7 @@
 import type { Matrix2DChar, RenderBlock } from "../types/block";
 import type { WeatherData } from "../types/weatherapi";
 import { pointOnCircleFromAngleDegrees, WIND_ART } from "./asciiart";
-import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateMoveToCmd } from "./renderhelper";
+import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateClearBlockString, generateMoveToCmd } from "./renderhelper";
 
 // wmo weather codes
 // 0	Clear sky
@@ -65,6 +65,7 @@ export class CurrentConditions implements RenderBlock {
   gridHeight = 2;
   border = "none" as "none";
   renderString = "";
+  isAnimated = false;
   constructor() {};
   updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
     let midCol = posX+Math.floor(width/2);
@@ -132,6 +133,7 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
     gridHeight = 1;
     border = "solid" as "solid"; // bruh
     renderString = "";
+    isAnimated = false;
     constructor() {};
     updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
       let midCol = posX+Math.floor(width/2);
@@ -201,8 +203,37 @@ export class CurrentWind implements RenderBlock {
   gridHeight = 2;
   border = "solid" as "solid";
   renderString = "";
+  private blockCol = -1;
+  private blockRow = -1;
+  private blockWidth = -1;
+  private blockHeight = -1;
+  private windDirection = 0;
+  isAnimated = true;
   constructor() {};
+  animationUpdateFunc (frameId: number): void {
+    let midCol = this.blockCol+Math.floor(this.blockWidth/2);
+    let midRow = this.blockRow+Math.floor(this.blockHeight/2);
+    let moveToMidCmd = generateMoveToCmd(midCol, midRow);
+    let moveToCornerCmd = generateMoveToCmd(this.blockCol, this.blockRow);
+
+    this.windDirection = frameId%360;
+    let outputString = generateClearBlockString(midCol-3, midRow-4, midCol+3, midRow+3);
+    outputString = outputString.concat(generateClearBlockString(this.blockCol+1, this.blockRow+1, this.blockCol+5, this.blockRow+1));
+
+    let [tipCol, tipRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, this.windDirection);
+    let [buttCol, buttRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, (this.windDirection+180)%360);
+    outputString = outputString.concat(generateMoveToCmd(midCol, midRow-1), "·");
+    outputString = outputString.concat(generateMoveToCmd(tipCol, tipRow), "*", generateMoveToCmd(buttCol, buttRow), "■");
+    outputString = outputString.concat(generateMoveToCmd(this.blockCol+1, this.blockRow+1), this.windDirection.toString(), "°");
+
+    console.write(outputString);
+  }
   updateRenderString (width: number, height: number, posX: number, posY: number, data: WeatherData): void {
+    this.blockCol = posX;
+    this.blockRow = posY;
+    this.blockHeight = height;
+    this.blockWidth = width;
+
     let midCol = posX+Math.floor(width/2);
     let midRow = posY+Math.floor(height/2);
     let moveToMidCmd = generateMoveToCmd(midCol, midRow);
@@ -211,12 +242,12 @@ export class CurrentWind implements RenderBlock {
     let outputString = addSolidBorder(width, height, posX, posY, "");
     outputString = outputString.concat(generateMoveToCmd(posX+1, posY), this.title);
     if (data.current?.windDirection != null) {
-      data.current.windDirection = 0;
-      let [tipCol, tipRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, data.current.windDirection);
-      let [buttCol, buttRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, (data.current.windDirection+180)%360);
+      this.windDirection = data.current.windDirection;
+      let [tipCol, tipRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, this.windDirection);
+      let [buttCol, buttRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, (this.windDirection+180)%360);
       outputString = outputString.concat(generateMoveToCmd(midCol, midRow-1), "·");
       outputString = outputString.concat(generateMoveToCmd(tipCol, tipRow), "*", generateMoveToCmd(buttCol, buttRow), "■");
-      outputString = outputString.concat(generateMoveToCmd(posX+1, posY+1), data.current.windDirection.toString(), "°");
+      outputString = outputString.concat(generateMoveToCmd(posX+1, posY+1), this.windDirection.toString(), "°");
     }
 
     if (data.current?.windSpeed != null) {
@@ -238,6 +269,7 @@ export class TwoByTwoTestBlock implements RenderBlock {
   gridHeight = 2;
   border = "none" as "none"; // bruh
   renderString = "";
+  isAnimated = false;
   constructor() {};
   updateRenderString (width: number, height: number, posX: number, posY: number, data: WeatherData): void {
     this.renderString = addSolidBorder(width, height, posX, posY, "");
@@ -250,6 +282,7 @@ export class OneByOneTestBlock implements RenderBlock {
   gridHeight = 1;
   border = "none" as "none"; // bruh
   renderString = "";
+  isAnimated = false;
   constructor() {};
   updateRenderString (width: number, height: number, posX: number, posY: number, data: WeatherData): void {
     this.renderString = addSolidBorder(width, height, posX, posY, "");
@@ -262,6 +295,7 @@ export class TwoByOneTestBlock implements RenderBlock {
   gridHeight = 1;
   border = "none" as "none"; // bruh
   renderString = "";
+  isAnimated = false;
   constructor() {};
   updateRenderString (width: number, height: number, posX: number, posY: number, data: WeatherData): void {
     this.renderString = addSolidBorder(width, height, posX, posY, "");
@@ -274,6 +308,7 @@ export class OneByThreeTestBlock implements RenderBlock {
   gridHeight = 3;
   border = "none" as "none"; // bruh
   renderString = "";
+  isAnimated = false;
   constructor() {};
   updateRenderString (width: number, height: number, posX: number, posY: number, data: WeatherData): void {
     this.renderString = addSolidBorder(width, height, posX, posY, "");

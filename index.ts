@@ -27,9 +27,11 @@ let renderBlocks: RenderBlock[] = [
 // gonna use a top-left decreasing algorithm for grid placement
 
 let renderOrder: number[] = [];
+let blocksToAnimate: number[] = [];
 
 function updateBlockRenderStrings() {
   renderOrder = []; // list of renderblock indexes to render, in order;
+  blocksToAnimate = [];
 
   [numColumns,numRows] = process.stdout.getWindowSize();
   
@@ -55,6 +57,9 @@ function updateBlockRenderStrings() {
     renderGrid.addBlockToGrid(itemWidth, itemHeight, pos[0], pos[1]);
     blockPositions.push(pos);
     renderOrder.push(i);
+    if (renderBlocks[i]!.isAnimated) {
+      blocksToAnimate.push(i);
+    }
   }
 
 
@@ -73,12 +78,8 @@ function updateBlockRenderStrings() {
 
 updateBlockRenderStrings();
 
-console.write('\x1B[?25l'); // hides cursor
+//console.write('\x1B[?25l'); // hides cursor
 console.write('\x1B[H'); // sets cursor to home pos (0,0)
-
-// setInterval(() => {
-//   render();
-// }, 100);
 
 function render() {
   // console.write('\x1B[H');
@@ -89,6 +90,15 @@ function render() {
   }
 }
 
+let frameCount = 0;
+
+function animationLoop() {
+  frameCount++;
+  blocksToAnimate.forEach((blockIdx) => {
+    renderBlocks[blockIdx]!.animationUpdateFunc!(frameCount*5);
+  });
+}
+
 render();
 
 process.on("SIGWINCH", () => {
@@ -97,6 +107,10 @@ process.on("SIGWINCH", () => {
   console.write('\x1B[H');
   render();
 });
+
+setInterval(() => {
+  animationLoop();
+}, 200);
 
 
 

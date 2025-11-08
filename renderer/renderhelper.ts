@@ -85,11 +85,22 @@ function calcMaxGridCellsXYFromTermSize(termWidth: number, termHeight: number): 
   return [maxCellsX, maxCellsY];
 }
 
+function generateClearBlockString(col1: number, row1: number, col2: number, row2: number): string {
+  let outputString = generateMoveToCmd(col1, row1);
+
+  for (let i = 0; i <= (row2-row1); i++) {
+    outputString = outputString.concat(" ".repeat(1+col2-col1), generateMoveToCmd(col1, row1+i));
+  }
+
+  return outputString;
+}
+
 // ┌───┐
 // │.  │
 // └───┘
 
 export {
   generateBlankCharArray, addSolidBorder, reduceCharsToStrings, calcBlockDimensionsGivenGridSize,
-  calculateIndividualSectionWidthAndXPosAndMidCol, generateMoveToCmd, calcMaxGridCellsXYFromTermSize
+  calculateIndividualSectionWidthAndXPosAndMidCol, generateMoveToCmd, calcMaxGridCellsXYFromTermSize,
+  generateClearBlockString
 };

@@ -110,5 +110,7 @@ export interface RenderBlock {
   gridHeight: number; // if 0 it will also auto expand to max width
   border: "none" | "dashed" | "solid";
   renderString: string; // long ass string of ANSI escape codes and stuff. requires cursor to be set to the top-left corner of the block before render
+  isAnimated: boolean;
+  animationUpdateFunc?: (frameId: number) => void;
   updateRenderString: (width: number, height: number, posX: number, posY: number, data: WeatherData) => void;
 };
