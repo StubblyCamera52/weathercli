@@ -244,6 +244,12 @@ export function parseOpenMeteoResponse(response: string): WeatherData {
     "weatherCode": responseObject.hourly.weather_code,
   };
 
+  let parsedDailyData: WeatherTimeRangeData = {
+    "time": responseObject.daily.time,
+    "sunset": responseObject.daily.sunset,
+    "sunrise": responseObject.daily.sunrise,
+  }
+
   let parsedCurrentData: WeatherTimeMomentData = {
     "time": responseObject.current.time,
     "apparentTemperature": responseObject.current.apparent_temperature,
@@ -257,6 +263,7 @@ export function parseOpenMeteoResponse(response: string): WeatherData {
 
   parsedWeatherData.hourly = parsedHourlyData;
   parsedWeatherData.current = parsedCurrentData;
+  parsedWeatherData.daily = parsedDailyData;
 
   return parsedWeatherData;
 }

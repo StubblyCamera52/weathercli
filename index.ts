@@ -1,6 +1,6 @@
 import { parseOpenMeteoResponse } from "./data/parseApiResponse";
 import { calcBlockDimensionsGivenGridSize, calcMaxGridCellsXYFromTermSize, GRID_CELL_SIZE_X, GRID_CELL_SIZE_Y, reduceCharsToStrings } from "./renderer/renderhelper";
-import { CurrentConditions, CurrentWind, HourlyTemperatureAndConditions, OneByOneTestBlock, OneByThreeTestBlock, TwoByOneTestBlock, TwoByTwoTestBlock } from "./renderer/weathermodules";
+import { CurrentConditions, CurrentWind, HourlyTemperatureAndConditions, OneByOneTestBlock, OneByThreeTestBlock, SunsetSunrise, TwoByOneTestBlock, TwoByTwoTestBlock } from "./renderer/weathermodules";
 import { RenderGrid, type Matrix2DChar, type RenderBlock } from "./types/block";
 import type { WeatherData } from "./types/weatherapi";
 import { generateOutputArray } from "./utils/consolehelper";
@@ -15,6 +15,7 @@ let renderBlocks: RenderBlock[] = [
   new HourlyTemperatureAndConditions(),
   new CurrentConditions(),
   new CurrentWind(),
+  new SunsetSunrise(),
 ].sort((a, b) => {
     let area1 = a.gridWidth * a.gridHeight;
     if (area1 == 0) return -1;

@@ -1,6 +1,6 @@
 # weather modules to add checklist
 
-- [ ] Wind
+- [x] Wind
 - [ ] Sunset/Sunrise
 - [ ] Precipitation Inches
 - [ ] Moon Phases?
@@ -12,6 +12,7 @@
 
 - [ ] make more modules
 - [ ] add animations?
-- [ ] selective rendering?
+- [x] animation capability
+- [x] selective rendering?
 - [ ] customization
 - [ ] colors

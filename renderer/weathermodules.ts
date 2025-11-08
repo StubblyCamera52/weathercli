@@ -1,6 +1,6 @@
 import type { Matrix2DChar, RenderBlock } from "../types/block";
 import type { WeatherData } from "../types/weatherapi";
-import { pointOnCircleFromAngleDegrees, WIND_ART } from "./asciiart";
+import { pointOnCircleFromAngleDegrees, SUNSET_SUNRISE_ART } from "./asciiart";
 import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateClearBlockString, generateMoveToCmd } from "./renderhelper";
 
 // wmo weather codes
@@ -257,6 +257,47 @@ export class CurrentWind implements RenderBlock {
     if (data.current?.windGustSpeed != null) {
       outputString = outputString.concat(generateMoveToCmd(posX+width-("Gusts::kn".concat(data.current.windGustSpeed.toString()).length+1), posY+height-2), "Gusts: ", data.current.windGustSpeed.toString(), "kn")
     }
+
+    this.renderString = outputString;
+  }
+}
+
+export class SunsetSunrise implements RenderBlock {
+  title = "Sun";
+  gridWidth = 1;
+  gridHeight = 1;
+  border = "solid" as "solid"; // bruh
+  renderString = "";
+  isAnimated = false;
+  constructor() {};
+  updateRenderString(width: number, height: number, posX: number, posY: number, data: WeatherData): void {
+    let midCol = posX+Math.floor(width/2);
+    let midRow = posY+Math.floor(height/2);
+    let moveToMidCmd = generateMoveToCmd(midCol, midRow);
+    let moveToCornerCmd = generateMoveToCmd(posX, posY);
+
+    let is_sunset = data.current?.isDay || 0; // if it is day we want to display sunset time else display sunrise time
+    let current_date = new Date().toISOString().slice(0, 10)
+
+    let sunsets = data.daily?.sunset || [];
+    let sunrises = data.daily?.sunrise || [];
+    let date_index = data.daily?.time?.indexOf(current_date) || -1;
+
+    let outputString = addSolidBorder(width, height, posX, posY, "");
+
+    if (date_index != -1) {
+      if (is_sunset == 1) {
+        let time = new Date(sunsets[date_index]!);
+        outputString = outputString.concat(generateMoveToCmd(midCol-4, posY+height-1), time.toLocaleTimeString('en-US', {"hour": "2-digit", "minute": "2-digit"}));
+      } else {
+        let time = new Date(sunrises[date_index]!);
+        outputString = outputString.concat(generateMoveToCmd(midCol-4, posY+height-1), time.toLocaleTimeString('en-US', {"hour": "2-digit", "minute": "2-digit"}));
+      }
+    }
+
+    outputString = outputString.concat(generateMoveToCmd(posX+1, posY), this.title);
+
+    outputString = outputString.concat(moveToMidCmd, is_sunset ? SUNSET_SUNRISE_ART.set : SUNSET_SUNRISE_ART.rise);
 
     this.renderString = outputString;
   }
