@@ -46,3 +46,5 @@ You can also run by cloning the repo and running the scripts.
 - Uses typescript for all the logic
 - Runs on node.js
 - Uses open-meteo for weather data
+
+Note: If your terminal is in light mode, you might not be able to see the snow animation (because snow is white)
