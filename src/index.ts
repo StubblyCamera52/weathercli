@@ -6,7 +6,6 @@ import { calcMaxGridCellsXYFromTermSize, calcBlockDimensionsGivenGridSize, GRID_
 import { HourlyTemperatureAndConditions, CurrentConditions, CurrentWind, SunsetSunrise, DailyOverview, MoonPhases } from "./renderer/weathermodules.js";
 import { type RenderBlock, RenderGrid } from "./types/block.js";
 import { loadConfig, loadCachedWeatherData, cacheWeatherData } from "./utils/config.js";
-import fs from "node:fs";
 import fetch from "node-fetch";
 import type { WeatherData } from "./types/weatherapi.js";
 

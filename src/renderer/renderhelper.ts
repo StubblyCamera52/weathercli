@@ -1,4 +1,3 @@
-import type { NumberLiteralType } from "typescript";
 import type { Matrix2DChar } from "../types/block.js";
 
 export const GRID_CELL_SIZE_X = 14;

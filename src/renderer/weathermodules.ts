@@ -307,7 +307,7 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
         return;
       }
 
-      let maxNumSections = Math.floor(width/14);
+      let maxNumSections = Math.floor(width/18);
       let sectionWidth = width/6
 
       for (let i = 0; i < maxNumSections; i++) {
