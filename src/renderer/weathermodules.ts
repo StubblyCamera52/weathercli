@@ -168,6 +168,8 @@ export class CurrentConditions implements RenderBlock {
   private previous_wmo_code = 0;
   constructor() {};
   animationUpdateFunc(frameId: number, dt: number): void {
+    //if (frameId % 10 == 0) this.wmocode = [0, 51, 53, 55, 71, 73, 75][Math.floor(Math.random()*7)]!;
+
     let regenDrops = false;
     if (this.previous_wmo_code != this.wmocode) regenDrops = true;
     this.previous_wmo_code = this.wmocode;
@@ -222,7 +224,7 @@ export class CurrentConditions implements RenderBlock {
 
     if (data.current?.time) {
       let current_time = new Date(data.current.time);
-      output_string = output_string.concat(moveToCornerCmd, "\x1b[37m", "Forecast from: ", current_time.toTimeString(), "\x1b[39m");
+      output_string = output_string.concat(moveToCornerCmd, "\x1b[37m", "Forecast from: ", current_time.toTimeString(), "Coords: ", config.lat.toFixed(3), ":", config.long.toFixed(3),  "\x1b[39m");
     }
 
     let temp = 0;
@@ -361,7 +363,7 @@ export class CurrentWind implements RenderBlock {
   private blockWidth = -1;
   private blockHeight = -1;
   private windDirection = 0;
-  isAnimated = true;
+  isAnimated = false;
   constructor() {};
   animationUpdateFunc (frameId: number,  dt: number): void {
     let midCol = this.blockCol+Math.floor(this.blockWidth/2);
@@ -434,7 +436,7 @@ export class SunsetSunrise implements RenderBlock {
 
     let sunsets = data.daily?.sunset || [];
     let sunrises = data.daily?.sunrise || [];
-    let date_index = data.daily?.time?.indexOf(current_date) || -1;
+    let date_index = data.daily?.time?.indexOf(current_date) ?? -1;
 
     let outputString = addSolidBorder(width, height, posX, posY, "");
 
@@ -502,7 +504,7 @@ export class MoonPhases implements RenderBlock {
   gridHeight = 1;
   border = "none" as "none"; // bruh
   renderString = "";
-  isAnimated = true;
+  isAnimated = false;
   private phase = 0;
   private blockCol = -1;
   private blockRow = -1;

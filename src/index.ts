@@ -5,14 +5,13 @@ import { parseOpenMeteoResponse } from "./data/parseApiResponse.js";
 import { calcMaxGridCellsXYFromTermSize, calcBlockDimensionsGivenGridSize, GRID_CELL_SIZE_X, GRID_CELL_SIZE_Y } from "./renderer/renderhelper.js";
 import { HourlyTemperatureAndConditions, CurrentConditions, CurrentWind, SunsetSunrise, DailyOverview, MoonPhases } from "./renderer/weathermodules.js";
 import { type RenderBlock, RenderGrid } from "./types/block.js";
-import { loadConfig } from "./utils/config.js";
+import { loadConfig, loadCachedWeatherData, cacheWeatherData } from "./utils/config.js";
 import fs from "node:fs";
+import fetch from "node-fetch";
+import type { WeatherData } from "./types/weatherapi.js";
 
 let [numColumns,numRows] = process.stdout.getWindowSize();
 console.clear();
-
-let testApiData = fs.readFileSync("src/data/sampledata.json", 'utf-8');
-let testWeatherData = parseOpenMeteoResponse(testApiData);
 
 let config = loadConfig();
 
@@ -30,6 +29,30 @@ if (!config) {
 }
 
 config = loadConfig() || {lat: 0, long: 0, uses_celcius: true};
+let cachedData = loadCachedWeatherData()
+
+let weatherData = {} as WeatherData;
+
+let requestUrl = "https://api.open-meteo.com/v1/forecast?latitude="+config.lat.toFixed(5)+"&longitude="+config.long.toFixed(5)+"&daily=weather_code,sunset,sunrise,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_mean&hourly=temperature_2m,weather_code&current=temperature_2m,apparent_temperature,is_day,wind_speed_10m,wind_direction_10m,wind_gusts_10m,weather_code&timezone=auto&wind_speed_unit=kn"
+
+if (cachedData && cachedData.current?.time) {
+  const cachedTime = new Date(cachedData.current.time);
+  const nowTime = new Date();
+  const timeDifference = Math.abs(nowTime.getTime() - cachedTime.getTime());
+  if (timeDifference >= (1000*60*15) || Math.abs(config.lat - cachedData.latitude) > 0.5 || Math.abs(config.long - cachedData.longitude) > 0.5) { // 1000ms/s * 60s/min * 15min = update every 15 minutes. also update if user changes their latitude by a significant amount
+    const response = await fetch(requestUrl);
+    const data = await response.text();
+    weatherData = parseOpenMeteoResponse(data);
+    cacheWeatherData(weatherData);
+  } else {
+    weatherData = cachedData;
+  }
+} else {
+  const response = await fetch(requestUrl);
+  const data = await response.text();
+  weatherData = parseOpenMeteoResponse(data);
+  cacheWeatherData(weatherData);
+}
 
 let renderBlocks: RenderBlock[] = [
   new HourlyTemperatureAndConditions(),
@@ -92,7 +115,7 @@ function updateBlockRenderStrings() {
       let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(numColumns, numRows, gridCellsMX, gridCellsMY, block.gridWidth, block.gridHeight);
       let [posX, posY] = [blockPositions[idx]![0]*GRID_CELL_SIZE_X+1, blockPositions[idx]![1]*GRID_CELL_SIZE_Y+1]; // +1 bc col and row start at 1,1
 
-      block.updateRenderString(sizeW, sizeH, posX, posY, testWeatherData, config!);
+      block.updateRenderString(sizeW, sizeH, posX, posY, weatherData, config!);
     }
   });
 
