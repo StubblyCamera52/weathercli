@@ -3,7 +3,7 @@
 - [x] Wind
 - [x] Sunset/Sunrise
 - [x] Precipitation Inches
-- [ ] Moon Phases?
+- [x] Moon Phases?
 - [ ] Multi-Day Forecast
 - [ ] Weather Averages
 - [?] Animations on the current module?
@@ -18,3 +18,5 @@
 - [ ] colors
 - [ ] select location
 - [ ] hook up to actual api
+- [ ] interactivity
+- [ ] geocoding?

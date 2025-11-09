@@ -4,11 +4,12 @@ import { CurrentConditions, CurrentWind, DailyOverview, HourlyTemperatureAndCond
 import { RenderGrid, type Matrix2DChar, type RenderBlock } from "./types/block";
 import type { WeatherData } from "./types/weatherapi";
 import { generateOutputArray } from "./utils/consolehelper";
+import fs from "node:fs";
 
 let [numColumns,numRows] = process.stdout.getWindowSize();
 console.clear();
 
-let testApiData = await Bun.file("data/sampledata.json").text()
+let testApiData = fs.readFileSync("data/sampledata.json", 'utf-8');
 let testWeatherData = parseOpenMeteoResponse(testApiData);
 
 let renderBlocks: RenderBlock[] = [
@@ -81,14 +82,14 @@ function updateBlockRenderStrings() {
 
 updateBlockRenderStrings();
 
-console.write('\x1B[?25l'); // hides cursor
-console.write('\x1B[H'); // sets cursor to home pos (0,0)
+process.stdout.write('\x1B[?25l'); // hides cursor
+process.stdout.write('\x1B[H'); // sets cursor to home pos (0,0)
 
 function render() {
   // console.write('\x1B[H');
   for (let idx of renderOrder) {
     if (renderBlocks[idx]) {
-      console.write(renderBlocks[idx]?.renderString);
+      process.stdout.write(renderBlocks[idx]?.renderString);
     }
   }
 }
@@ -111,13 +112,13 @@ render();
 process.on("SIGWINCH", () => {
   console.clear();
   updateBlockRenderStrings();
-  console.write('\x1B[H');
+  process.stdout.write('\x1B[H');
   render();
 });
 
 setInterval(() => {
   animationLoop();
-}, 30);
+}, 100);
 
 
 

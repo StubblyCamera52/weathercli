@@ -221,7 +221,7 @@ class Button extends TuiComponent {
 
   render(width: number) {
     const label = ` ${this.props.label} `;
-    const content = `[${label}]`;
+    const content = `(${label})`;
     const show = this.focused ? `> ${content}` : `  ${content}`;
     const suffix = this.props.disabled ? ' (disabled)' : '';
     return [this.fitLine(show + suffix, width)];
@@ -414,7 +414,7 @@ function parseKey(chunk: string): { key: string; ctrl?: boolean } {
 }
 
 function testTui() {
-  const root = new TuiContainer("root", "column", 1, {});
+  const root = new TuiContainer("root", "column", 0, {});
   const tlabel = new Label("tlabel", {label: "test label"});
   const tinput = new TextInput("testinput", {
     placeholder: "type something",
