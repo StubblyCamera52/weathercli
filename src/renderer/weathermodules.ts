@@ -22,7 +22,7 @@ import { convertTemp } from "../utils/units.js";
 import { pointOnCircleFromAngleDegrees, SUNSET_SUNRISE_ART, MOON_ART } from "./asciiart.js";
 import { generateBlankCharArray, reduceCharsToStrings, generateMoveToCmd, addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateClearBlockString } from "./renderhelper.js";
 
-// ☀️🌤️⛅️☁️🌧️⛈️🌨️❄️🌫️🧊
+// ☀️🌤️⛅️☁️🌧️⛈️🌨️❄️🌫️🧊☼☃☁⛆⛈
 
 function convertWMOCodeToString(code?: number): string {
   if (code == null) {
@@ -30,35 +30,35 @@ function convertWMOCodeToString(code?: number): string {
   }
 
   switch (code) {
-    case 0: return "☀️ Clear";
-    case 1: return "🌤️ Mostly Clear";
-    case 2: return "⛅️ Partly Cloudy";
-    case 3: return "☁️ Overcast";
+    case 0: return "☼ Clear";
+    case 1: return "☼ Mostly Clear";
+    case 2: return "☁ Partly Cloudy";
+    case 3: return "☁ Overcast";
     case 45:
-    case 48: return "🌫️ Foggy";
+    case 48: return "░ Foggy";
     case 56:
-    case 51: return "🌧️ Light Drizzle";
-    case 53: return "🌧️ Moderate Drizzle";
+    case 51: return "⛆ Light Drizzle";
+    case 53: return "⛆ Moderate Drizzle";
     case 57:
-    case 55: return "🌧️ Dense Drizzle";
+    case 55: return "⛆ Dense Drizzle";
     case 66:
-    case 61: return "🌧️ Slight Rain";
-    case 63: return "🌧️ Moderate Rain";
+    case 61: return "⛆ Slight Rain";
+    case 63: return "⛆ Moderate Rain";
     case 67:
-    case 65: return "🌧️ Heavy Rain";
-    case 71: return "❄️ Slight Snow";
-    case 73: return "❄️ Moderate Snow";
-    case 75: return "❄️ Heavy Snow";
-    case 77: return "❄️ Snow Grains";
-    case 80: return "🌧️ Slight Showers";
-    case 81: return "🌧️ Moderate Showers";
-    case 82: return "🌧️ Violent Showers";
-    case 85: return "❄️ Slight Snow Shower";
-    case 86: return "❄️ Heavy Snow Shower";
+    case 65: return "⛆ Heavy Rain";
+    case 71: return "☃ Slight Snow";
+    case 73: return "☃ Moderate Snow";
+    case 75: return "☃ Heavy Snow";
+    case 77: return "☃ Snow Grains";
+    case 80: return "⛆ Slight Showers";
+    case 81: return "⛆ Moderate Showers";
+    case 82: return "⛆ Violent Showers";
+    case 85: return "☃ Slight Snow Shower";
+    case 86: return "☃ Heavy Snow Shower";
     case 96:
     case 99:
-    case 95: return "⛈️ Thunderstorm";
-    default: return "Unknown";
+    case 95: return "⛈ Thunderstorm";
+    default: return "? Unknown";
   }
 }
 
@@ -222,7 +222,7 @@ export class CurrentConditions implements RenderBlock {
 
     if (data.current?.time) {
       let current_time = new Date(data.current.time);
-      output_string = output_string.concat(moveToCornerCmd, "Forecast from: ", current_time.toTimeString());
+      output_string = output_string.concat(moveToCornerCmd, "\x1b[37m", "Forecast from: ", current_time.toTimeString(), "\x1b[39m");
     }
 
     let temp = 0;
@@ -251,9 +251,9 @@ export class CurrentConditions implements RenderBlock {
       is_day = data.current.isDay;
     }
 
-    output_string = output_string.concat(moveToMidCmd, "\x1b[1D\x1b[2A", temp+temp_unit_string); // renders temp
-    output_string = output_string.concat(moveToMidCmd, "\x1b[1A\x1b[6D", "Feels like "+feels_like+temp_unit_string); // feels like
-    output_string = output_string.concat(moveToMidCmd, "\x1b["+(Math.floor(wmo_string.length/2)-1)+"D", wmo_string);
+    output_string = output_string.concat(moveToMidCmd, "\x1b[31m\x1b[1D\x1b[2A", temp+temp_unit_string, "\x1b[39m"); // renders temp
+    output_string = output_string.concat(moveToMidCmd, "\x1b[36m\x1b[1A\x1b[6D", "Feels like "+feels_like+temp_unit_string, "\x1b[39m"); // feels like
+    output_string = output_string.concat(moveToMidCmd, "\x1b[33m\x1b["+(Math.floor(wmo_string.length/2)-1)+"D", wmo_string, "\x1b[39m");
 
     if (is_day == 1) {
       output_string = output_string.concat(moveToMidCmd, "\x1b[1B", "☀️");
@@ -339,9 +339,9 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
           is_am_or_pm = "PM";
         }
 
-        output_string = output_string.concat(moveToMidCmd, "\x1b["+Math.floor(conditionString.length/2)+"D", conditionString);
-        output_string = output_string.concat(moveToMidCmd, "\x1b[1D\x1b[1B", (hour.toLocaleTimeString(Intl.getCanonicalLocales("en-US")).split(":")[0] as string).concat(is_am_or_pm)); // makes it say the hour in 12hr time
-        output_string = output_string.concat(moveToMidCmd, "\x1b[2D\x1b[1A", temp.toPrecision(2)+temp_unit_string);
+        output_string = output_string.concat(moveToMidCmd, "\x1b[32m\x1b["+Math.floor(conditionString.length/2)+"D", conditionString, "\x1b[0;39m");
+        output_string = output_string.concat(moveToMidCmd, "\x1b[1;33m\x1b[1D\x1b[1B", (hour.toLocaleTimeString(Intl.getCanonicalLocales("en-US")).split(":")[0] as string).concat(is_am_or_pm), "\x1b[0;39m"); // makes it say the hour in 12hr time
+        output_string = output_string.concat(moveToMidCmd, "\x1b[1;31m\x1b[2D\x1b[1A", temp.toPrecision(2)+temp_unit_string, "\x1b[0;39m");
       }
 
       this.renderString = output_string;
@@ -376,7 +376,7 @@ export class CurrentWind implements RenderBlock {
     let [tipCol, tipRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, this.windDirection);
     let [buttCol, buttRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, (this.windDirection+180)%360);
     outputString = outputString.concat(generateMoveToCmd(midCol, midRow-1), "·");
-    outputString = outputString.concat(generateMoveToCmd(tipCol, tipRow), "*", generateMoveToCmd(buttCol, buttRow), "■");
+    outputString = outputString.concat(generateMoveToCmd(tipCol, tipRow), "\x1b[1;31m", "*", "\x1b[1;34m", generateMoveToCmd(buttCol, buttRow), "■", "\x1b[0;39m");
     outputString = outputString.concat(generateMoveToCmd(this.blockCol+1, this.blockRow+1), this.windDirection.toString(), "°");
 
     process.stdout.write(outputString);
@@ -450,7 +450,7 @@ export class SunsetSunrise implements RenderBlock {
 
     outputString = outputString.concat(generateMoveToCmd(posX+1, posY), this.title);
 
-    outputString = outputString.concat(moveToMidCmd, is_sunset ? SUNSET_SUNRISE_ART.set : SUNSET_SUNRISE_ART.rise);
+    outputString = outputString.concat(moveToMidCmd, is_sunset ? SUNSET_SUNRISE_ART.set : SUNSET_SUNRISE_ART.rise, "\x1b[0;39m");
 
     this.renderString = outputString;
   }
@@ -487,10 +487,10 @@ export class DailyOverview implements RenderBlock {
     let weatherCode = data.daily?.weatherCode?.at(date_index) || -1;
     let weatherString = convertWMOCodeToString(weatherCode);
 
-    outputString = outputString.concat(generateMoveToCmd(midCol-3, midRow-2),"💧", precipitationSum.toString(), "mm");
-    outputString = outputString.concat(generateMoveToCmd(midCol-5, midRow-1), precipitationProbability.toString(), "% Chance");
-    outputString = outputString.concat(generateMoveToCmd(midCol-(Math.floor(weatherString.length/2)), midRow), weatherString);
-    outputString = outputString.concat(generateMoveToCmd(midCol-5, midRow+1), temperatureMin.toString(), temp_unit_string, " - ", temperatureMax.toString(), temp_unit_string);
+    outputString = outputString.concat(generateMoveToCmd(midCol-3, midRow-2),"💧", "\x1b[1;34m", precipitationSum.toString(), "mm", "\x1b[0;39m");
+    outputString = outputString.concat(generateMoveToCmd(midCol-5, midRow-1), "\x1b[0;36m", precipitationProbability.toString(), "% Chance", "\x1b[0;39m");
+    outputString = outputString.concat(generateMoveToCmd(midCol-(Math.floor(weatherString.length/2)), midRow), "\x1b[0;32m", weatherString, "\x1b[0;39m");
+    outputString = outputString.concat(generateMoveToCmd(midCol-5, midRow+1), "\x1b[0;31m", temperatureMin.toString(), temp_unit_string, " - ", temperatureMax.toString(), temp_unit_string, "\x1b[0;39m");
 
     this.renderString = outputString;
   }
@@ -519,7 +519,7 @@ export class MoonPhases implements RenderBlock {
 
     this.phase = Math.floor(frameId/10)%8;
 
-    outputString = outputString.concat(moveToMidCmd, MOON_ART[this.phase]!);
+    outputString = outputString.concat(moveToMidCmd, "\x1b[0;33m", MOON_ART[this.phase]!, "\x1b[0;39m");
     outputString = outputString.concat(generateMoveToCmd(this.blockCol+1, this.blockRow), this.title);
 
     process.stdout.write(outputString);
@@ -541,7 +541,7 @@ export class MoonPhases implements RenderBlock {
 
     let moonPhase = calculateMoonPhase();
 
-    outputString = outputString.concat(moveToMidCmd, MOON_ART[moonPhase]!);
+    outputString = outputString.concat(moveToMidCmd, "\x1b[0;33m", MOON_ART[moonPhase]!, "\x1b[0;39m");
 
     this.renderString = outputString;
   }

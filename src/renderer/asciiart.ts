@@ -6,8 +6,8 @@ export function pointOnCircleFromAngleDegrees(midCol: number, midRow: number, ra
 }
 
 export const SUNSET_SUNRISE_ART = {
-  "set": "\x1b[3D(---)\x1b[3D\x1b[1A↓\x1b[2B\x1b[5D``````````",
-  "rise": "\x1b[3D(OOO)\x1b[3D\x1b[1A↑\x1b[2B\x1b[5D``````````",
+  "set": "\x1b[0;33m\x1b[3D(---)\x1b[3D\x1b[1A\x1b[0;39m↓\x1b[2B\x1b[5D\x1b[0;36m``````````",
+  "rise": "\x1b[1;33m\x1b[3D(OOO)\x1b[3D\x1b[1A\x1b[0;39m↑\x1b[2B\x1b[5D\x1b[0;36m``````````",
 }
 
 export const MOON_ART: { [key: number]: string } = {
