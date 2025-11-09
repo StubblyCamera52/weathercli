@@ -10,13 +10,13 @@
 
 ## todo list
 
-- [ ] make more modules
-- [ ] add animations?
+- [x] make more modules
+- [√] add animations?
 - [x] animation capability
 - [x] selective rendering?
-- [ ] customization
+- [=] customization
 - [ ] colors
-- [ ] select location
+- [?] select location
 - [ ] hook up to actual api
-- [ ] interactivity
-- [ ] geocoding?
+- [?] interactivity
+- [no] geocoding?
