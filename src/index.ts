@@ -159,6 +159,18 @@ process.on("SIGWINCH", () => {
   render();
 });
 
+process.on("SIGTERM", () => {
+  process.stdout.write('\x1B[?25h');
+  console.clear();
+  process.exit(0);
+});
+
+process.on("SIGINT", () => {
+  process.stdout.write('\x1B[?25h');
+  console.clear();
+  process.exit(0);
+});
+
 setInterval(() => {
   animationLoop();
 }, 100);
