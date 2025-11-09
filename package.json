@@ -1,8 +1,17 @@
 {
   "name": "weathercli",
+  "version": "0.1.0",
+  "description": "A terminal utility to view the weather.",
+  "author": {"name": "lionthefish"},
+  "license": "GPL-3.0-only",
   "module": "src/index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "files": ["dist"],
   "devDependencies": {
     "@types/node": "latest"
   },
@@ -11,5 +20,8 @@
   },
   "dependencies": {
     "decimal.js": "^10.6.0"
+  },
+  "bin": {
+    "weathercli": "dist/index.js"
   }
 }

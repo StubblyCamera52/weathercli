@@ -1,3 +1,5 @@
+import EventEmitter from "node:events";
+
 export type TuiEvent =
   | { type: "key"; key: string, ctrl: boolean }
   | { type: "focus" | "blur" }
@@ -326,7 +328,12 @@ class TuiRenderer {
   }
 }
 
-class TuiApp {
+interface TuiAppEvents {
+  complete: () => void;
+  error: (err: Error) => void;
+}
+
+class TuiApp extends EventEmitter {
   root: TuiContainer;
   renderer: TuiRenderer;
   focusOrder: TuiComponent[] = [];
@@ -334,6 +341,7 @@ class TuiApp {
   running = false;
 
   constructor(root: TuiContainer) {
+    super();
     this.root = root;
     this.renderer = new TuiRenderer();
     this.regenerateFocusOrder();
@@ -425,7 +433,8 @@ class TuiApp {
     process.stdin.pause();
     process.stdin.removeAllListeners("data");
     process.stdout.write("\n");
-    process.exit(0);
+    this.emit("complete");
+    //process.exit(0);
   }
 }
 

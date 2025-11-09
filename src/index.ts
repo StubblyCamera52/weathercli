@@ -1,10 +1,12 @@
+#!/usr/bin/env node
+
+import { OnboardingUI } from "./app/onboarding.js";
 import { parseOpenMeteoResponse } from "./data/parseApiResponse.js";
 import { calcMaxGridCellsXYFromTermSize, calcBlockDimensionsGivenGridSize, GRID_CELL_SIZE_X, GRID_CELL_SIZE_Y } from "./renderer/renderhelper.js";
 import { HourlyTemperatureAndConditions, CurrentConditions, CurrentWind, SunsetSunrise, DailyOverview, MoonPhases } from "./renderer/weathermodules.js";
 import { type RenderBlock, RenderGrid } from "./types/block.js";
 import { loadConfig } from "./utils/config.js";
 import fs from "node:fs";
-
 
 let [numColumns,numRows] = process.stdout.getWindowSize();
 console.clear();
@@ -14,9 +16,20 @@ let testWeatherData = parseOpenMeteoResponse(testApiData);
 
 let config = loadConfig();
 
-if (!config) {
-  config = {lat: 47.5, long: -122, uses_celcius: false};
+if (process.argv.includes("-s")) {
+  config = undefined;
 }
+
+if (!config) {
+  await new Promise<void>((resolve, reject) => {
+    const onboard = new OnboardingUI();
+    onboard.once("complete", resolve);
+    onboard.once("error", reject);
+    onboard.start();
+  });
+}
+
+config = loadConfig() || {lat: 0, long: 0, uses_celcius: true};
 
 let renderBlocks: RenderBlock[] = [
   new HourlyTemperatureAndConditions(),
