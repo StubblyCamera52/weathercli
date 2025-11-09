@@ -49,6 +49,20 @@ function reduceCharsToStrings(arr: Matrix2DChar): string {
   return output2;
 }
 
+function reduceCharsToStrings2(arr: Matrix2DChar): string[] {
+  let output: string[] = [];
+
+  for (const item of arr) {
+    output.push(
+      item.reduce((accumulated, current) => {
+        return accumulated + current;
+      }, "")
+    );
+  }
+
+  return output;
+}
+
 function calcBlockDimensionsGivenGridSize(termSizeW: number, termSizeH: number, gridCellsW: number, gridCellsH: number, blockSizeW: number, blockSizeH: number): [number, number] {
   let calcW: number;
   let calcH: number;
