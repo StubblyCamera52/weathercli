@@ -26,6 +26,7 @@ if (!config) {
     onboard.once("error", reject);
     onboard.start();
   });
+  console.clear();
 }
 
 config = loadConfig() || {lat: 0, long: 0, uses_celcius: true};
@@ -33,7 +34,7 @@ let cachedData = loadCachedWeatherData()
 
 let weatherData = {} as WeatherData;
 
-let requestUrl = "https://api.open-meteo.com/v1/forecast?latitude="+config.lat.toFixed(5)+"&longitude="+config.long.toFixed(5)+"&daily=weather_code,sunset,sunrise,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_mean&hourly=temperature_2m,weather_code&current=temperature_2m,apparent_temperature,is_day,wind_speed_10m,wind_direction_10m,wind_gusts_10m,weather_code&timezone=auto&wind_speed_unit=kn"
+let requestUrl = "https://api.open-meteo.com/v1/forecast?latitude="+config.lat.toFixed(5)+"&longitude="+config.long.toFixed(5)+"&daily=weather_code,sunset,sunrise,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_mean&hourly=temperature_2m,weather_code&current=temperature_2m,apparent_temperature,is_day,wind_speed_10m,wind_direction_10m,wind_gusts_10m,weather_code&timezone=auto&wind_speed_unit=kn&forecast_hours=12"
 
 if (cachedData && cachedData.current?.time) {
   const cachedTime = new Date(cachedData.current.time);

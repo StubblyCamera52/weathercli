@@ -307,10 +307,11 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
         return;
       }
 
+      let maxNumSections = Math.floor(width/14);
       let sectionWidth = width/6
 
-      for (let i = 0; i < 6; i++) {
-        let [sectionWidth, sectionPosX, sectionMidCol] = calculateIndividualSectionWidthAndXPosAndMidCol(width, 6, posX, i);
+      for (let i = 0; i < maxNumSections; i++) {
+        let [sectionWidth, sectionPosX, sectionMidCol] = calculateIndividualSectionWidthAndXPosAndMidCol(width, maxNumSections, posX, i);
         let moveToMidCmd = generateMoveToCmd(sectionMidCol, midRow); // override movetomidcmd with the section middle
 
         if (!times || !temps || !conditions) break;
@@ -378,7 +379,7 @@ export class CurrentWind implements RenderBlock {
     let [tipCol, tipRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, this.windDirection);
     let [buttCol, buttRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, (this.windDirection+180)%360);
     outputString = outputString.concat(generateMoveToCmd(midCol, midRow-1), "·");
-    outputString = outputString.concat(generateMoveToCmd(tipCol, tipRow), "\x1b[1;31m", "*", "\x1b[1;34m", generateMoveToCmd(buttCol, buttRow), "■", "\x1b[0;39m");
+    outputString = outputString.concat(generateMoveToCmd(tipCol, tipRow), "\x1b[1;34m", "■", "\x1b[1;31m", generateMoveToCmd(buttCol, buttRow), "*", "\x1b[0;39m");
     outputString = outputString.concat(generateMoveToCmd(this.blockCol+1, this.blockRow+1), this.windDirection.toString(), "°");
 
     process.stdout.write(outputString);
@@ -401,7 +402,7 @@ export class CurrentWind implements RenderBlock {
       let [tipCol, tipRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, this.windDirection);
       let [buttCol, buttRow] = pointOnCircleFromAngleDegrees(midCol, midRow, 3, (this.windDirection+180)%360);
       outputString = outputString.concat(generateMoveToCmd(midCol, midRow-1), "·");
-      outputString = outputString.concat(generateMoveToCmd(tipCol, tipRow), "*", generateMoveToCmd(buttCol, buttRow), "■");
+      outputString = outputString.concat(generateMoveToCmd(tipCol, tipRow), "\x1b[1;34m", "■", generateMoveToCmd(buttCol, buttRow), "\x1b[1;31m", "*", "\x1b[0;39m");
       outputString = outputString.concat(generateMoveToCmd(posX+1, posY+1), this.windDirection.toString(), "°");
     }
 
@@ -432,7 +433,7 @@ export class SunsetSunrise implements RenderBlock {
     let moveToCornerCmd = generateMoveToCmd(posX, posY);
 
     let is_sunset = data.current?.isDay || 0; // if it is day we want to display sunset time else display sunrise time
-    let current_date = new Date().toISOString().slice(0, 10)
+    let current_date = new Date().toISOString().slice(0, 10);
 
     let sunsets = data.daily?.sunset || [];
     let sunrises = data.daily?.sunrise || [];
@@ -474,7 +475,7 @@ export class DailyOverview implements RenderBlock {
     let moveToMidCmd = generateMoveToCmd(midCol, midRow);
     let moveToCornerCmd = generateMoveToCmd(posX, posY);
     let current_date = new Date().toISOString().slice(0, 10);
-    let date_index = data.daily?.time?.indexOf(current_date) || -1;
+    let date_index = data.daily?.time?.indexOf(current_date) ?? -1;
 
     let outputString = addSolidBorder(width, height, posX, posY, "");
 
