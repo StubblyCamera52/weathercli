@@ -204,6 +204,63 @@ class TextInput extends TuiComponent {
 
 // add button and radio later
 
+interface ButtonProps extends TuiComponentProps {
+  label: string;
+  onPress?: () => void;
+  disabled?: boolean;
+}
+
+class Button extends TuiComponent {
+  override props: ButtonProps;
+  
+  constructor(id: string, props: ButtonProps) {
+    super(id, props);
+    this.props = props;
+    this.props.focusable = props.focusable ?? true;
+  }
+
+  render(width: number) {
+    const label = ` ${this.props.label} `;
+    const content = `[${label}]`;
+    const show = this.focused ? `> ${content}` : `  ${content}`;
+    const suffix = this.props.disabled ? ' (disabled)' : '';
+    return [this.fitLine(show + suffix, width)];
+  }
+
+  handleEvent(event: TuiEvent) {
+    if (!this.focused) return false;
+    if (event.type != "key") return false;
+    if (event.key == "enter" || event.key == " ") {
+      if (!this.props.disabled) this.props.onPress?.();
+      return true;
+    }
+    return false;
+  }
+}
+
+interface LabelProps extends TuiComponentProps {
+  label: string;
+}
+
+class Label extends TuiComponent {
+  override props: LabelProps;
+
+  constructor(id: string, props: LabelProps) {
+    super(id, props);
+    this.props = props;
+    this.props.focusable = false;
+  }
+
+  render(width: number) {
+    const label = `${this.props.label}`;
+    return [this.fitLine(label, width)];
+  }
+
+  handleEvent(event: TuiEvent) {
+    return false;
+  }
+}
+
 class TuiRenderer {
   width: number = process.stdout.columns || 80;
   height: number = process.stdout.rows || 25;
@@ -348,6 +405,8 @@ function parseKey(chunk: string): { key: string; ctrl?: boolean } {
   if (chunk == "\r" || chunk == "\n") return {key: "enter"};
   if (chunk == "\t") return {key: "tab"};
   if (chunk == "\x1b") return {key: "escape"};
+  if (chunk == "\x03") return {key: "ctrlc"};
+  if (chunk == "\x1b[Z") return {key: "shifttab"};
 
   // printable character
   if (chunk.length == 1) return {key: chunk};
@@ -356,6 +415,7 @@ function parseKey(chunk: string): { key: string; ctrl?: boolean } {
 
 function testTui() {
   const root = new TuiContainer("root", "column", 1, {});
+  const tlabel = new Label("tlabel", {label: "test label"});
   const tinput = new TextInput("testinput", {
     placeholder: "type something",
     value: '',
@@ -363,10 +423,23 @@ function testTui() {
     onChange: v => {},
     onSubmit: v => {},
   });
+  const tbutton = new Button("testbutton", {
+    label: "test",
+  })
+
+  const tbuttondisabled = new Button("testbutton", {
+    label: "test",
+    disabled: true,
+  })
   
   root.addChild(tinput);
+  root.addChild(tlabel);
+  root.addChild(tbutton);
+  root.addChild(tbuttondisabled);
 
   const app = new TuiApp(root);
+
+  app.regenerateFocusOrder();
 
   const originalDispatch = app.dispatch.bind(app);
   app.dispatch = (event: TuiEvent) => {
@@ -375,10 +448,10 @@ function testTui() {
         app.focusNext();
         app.render();
         return;
-      } else if (event.key == "escape") {
+      } else if (event.key == "escape" || event.key == "ctrlc") {
         app.stop();
         return;
-      } else if (event.key == "shift-tab") {
+      } else if (event.key == "shifttab") {
         app.focusPrev();
         app.render();
         return;
