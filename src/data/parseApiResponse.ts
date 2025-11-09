@@ -1,4 +1,4 @@
-import type { WeatherData, WeatherTimeMomentData, WeatherTimeRangeData } from "../types/weatherapi";
+import type { WeatherData, WeatherTimeMomentData, WeatherTimeRangeData } from "../types/weatherapi.js";
 
 type OpenMeteoApiResponse = {
   latitude: number;

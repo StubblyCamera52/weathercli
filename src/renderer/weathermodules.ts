@@ -1,10 +1,3 @@
-import type { Matrix2DChar, RenderBlock } from "../types/block";
-import type { WeatherData } from "../types/weatherapi";
-import { calculateMoonPhase } from "../utils/astronomyhelper";
-import type { Config } from "../utils/config";
-import { convertTemp } from "../utils/units";
-import { MOON_ART, pointOnCircleFromAngleDegrees, SUNSET_SUNRISE_ART } from "./asciiart";
-import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateBlankCharArray, generateClearBlockString, generateMoveToCmd, reduceCharsToStrings } from "./renderhelper";
 
 // wmo weather codes
 // 0	Clear sky
@@ -20,6 +13,14 @@ import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, genera
 // 85, 86	Snow showers slight and heavy
 // 95 *	Thunderstorm: Slight or moderate
 // 96, 99 *	Thunderstorm with slight and heavy hail
+
+import type { RenderBlock } from "../types/block.js";
+import type { WeatherData } from "../types/weatherapi.js";
+import { calculateMoonPhase } from "../utils/astronomyhelper.js";
+import type { Config } from "../utils/config.js";
+import { convertTemp } from "../utils/units.js";
+import { pointOnCircleFromAngleDegrees, SUNSET_SUNRISE_ART, MOON_ART } from "./asciiart.js";
+import { generateBlankCharArray, reduceCharsToStrings, generateMoveToCmd, addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateClearBlockString } from "./renderhelper.js";
 
 // ☀️🌤️⛅️☁️🌧️⛈️🌨️❄️🌫️🧊
 

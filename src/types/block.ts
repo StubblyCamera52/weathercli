@@ -1,5 +1,5 @@
-import type { Config } from "../utils/config";
-import type { WeatherData } from "./weatherapi";
+import type { Config } from "../utils/config.js";
+import type { WeatherData } from "./weatherapi.js";
 
 export type Matrix2DChar = Array<Array<string>>;
 type oneOrZero = "1" | "0";

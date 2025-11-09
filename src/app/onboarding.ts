@@ -1,5 +1,6 @@
-import { Button, Label, TextInput, ToggleButton, TuiApp, TuiContainer, type TuiEvent } from "../renderer/tui";
-import { saveConfig } from "../utils/config";
+import { TuiContainer, Label, TextInput, ToggleButton, Button, TuiApp, type TuiEvent } from "../renderer/tui.js";
+import { saveConfig } from "../utils/config.js";
+
 
 
 export function onboardingUI() {

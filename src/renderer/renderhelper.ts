@@ -1,5 +1,5 @@
 import type { NumberLiteralType } from "typescript";
-import type { Matrix2DChar } from "../types/block";
+import type { Matrix2DChar } from "../types/block.js";
 
 export const GRID_CELL_SIZE_X = 14;
 export const GRID_CELL_SIZE_Y = 5;

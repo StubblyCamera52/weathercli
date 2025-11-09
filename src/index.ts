@@ -1,16 +1,15 @@
-import { parseOpenMeteoResponse } from "./data/parseApiResponse";
-import { calcBlockDimensionsGivenGridSize, calcMaxGridCellsXYFromTermSize, GRID_CELL_SIZE_X, GRID_CELL_SIZE_Y, reduceCharsToStrings } from "./renderer/renderhelper";
-import { CurrentConditions, CurrentWind, DailyOverview, HourlyTemperatureAndConditions, MoonPhases, OneByOneTestBlock, OneByThreeTestBlock, SunsetSunrise, TwoByOneTestBlock, TwoByTwoTestBlock } from "./renderer/weathermodules";
-import { RenderGrid, type Matrix2DChar, type RenderBlock } from "./types/block";
-import type { WeatherData } from "./types/weatherapi";
-import { loadConfig } from "./utils/config";
-import { generateOutputArray } from "./utils/consolehelper";
+import { parseOpenMeteoResponse } from "./data/parseApiResponse.js";
+import { calcMaxGridCellsXYFromTermSize, calcBlockDimensionsGivenGridSize, GRID_CELL_SIZE_X, GRID_CELL_SIZE_Y } from "./renderer/renderhelper.js";
+import { HourlyTemperatureAndConditions, CurrentConditions, CurrentWind, SunsetSunrise, DailyOverview, MoonPhases } from "./renderer/weathermodules.js";
+import { type RenderBlock, RenderGrid } from "./types/block.js";
+import { loadConfig } from "./utils/config.js";
 import fs from "node:fs";
+
 
 let [numColumns,numRows] = process.stdout.getWindowSize();
 console.clear();
 
-let testApiData = fs.readFileSync("data/sampledata.json", 'utf-8');
+let testApiData = fs.readFileSync("src/data/sampledata.json", 'utf-8');
 let testWeatherData = parseOpenMeteoResponse(testApiData);
 
 let config = loadConfig();
