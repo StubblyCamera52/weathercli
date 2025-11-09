@@ -3,6 +3,7 @@ import { calcBlockDimensionsGivenGridSize, calcMaxGridCellsXYFromTermSize, GRID_
 import { CurrentConditions, CurrentWind, DailyOverview, HourlyTemperatureAndConditions, MoonPhases, OneByOneTestBlock, OneByThreeTestBlock, SunsetSunrise, TwoByOneTestBlock, TwoByTwoTestBlock } from "./renderer/weathermodules";
 import { RenderGrid, type Matrix2DChar, type RenderBlock } from "./types/block";
 import type { WeatherData } from "./types/weatherapi";
+import { loadConfig } from "./utils/config";
 import { generateOutputArray } from "./utils/consolehelper";
 import fs from "node:fs";
 
@@ -11,6 +12,12 @@ console.clear();
 
 let testApiData = fs.readFileSync("data/sampledata.json", 'utf-8');
 let testWeatherData = parseOpenMeteoResponse(testApiData);
+
+let config = loadConfig();
+
+if (!config) {
+  config = {lat: 47.5, long: -122, uses_celcius: false};
+}
 
 let renderBlocks: RenderBlock[] = [
   new HourlyTemperatureAndConditions(),
@@ -73,7 +80,7 @@ function updateBlockRenderStrings() {
       let [sizeW, sizeH] = calcBlockDimensionsGivenGridSize(numColumns, numRows, gridCellsMX, gridCellsMY, block.gridWidth, block.gridHeight);
       let [posX, posY] = [blockPositions[idx]![0]*GRID_CELL_SIZE_X+1, blockPositions[idx]![1]*GRID_CELL_SIZE_Y+1]; // +1 bc col and row start at 1,1
 
-      block.updateRenderString(sizeW, sizeH, posX, posY, testWeatherData);
+      block.updateRenderString(sizeW, sizeH, posX, posY, testWeatherData, config!);
     }
   });
 

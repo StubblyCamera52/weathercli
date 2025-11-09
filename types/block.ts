@@ -1,3 +1,4 @@
+import type { Config } from "../utils/config";
 import type { WeatherData } from "./weatherapi";
 
 export type Matrix2DChar = Array<Array<string>>;
@@ -112,5 +113,5 @@ export interface RenderBlock {
   renderString: string; // long ass string of ANSI escape codes and stuff. requires cursor to be set to the top-left corner of the block before render
   isAnimated: boolean;
   animationUpdateFunc?: (frameId: number, dt: number) => void;
-  updateRenderString: (width: number, height: number, posX: number, posY: number, data: WeatherData) => void;
+  updateRenderString: (width: number, height: number, posX: number, posY: number, data: WeatherData, config: Config) => void;
 };

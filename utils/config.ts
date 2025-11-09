@@ -5,6 +5,7 @@ import path from "node:path";
 export type Config = {
   lat: number;
   long: number;
+  uses_celcius: boolean;
 }
 
 const configDir = path.join(os.homedir(), ".weathercli");

@@ -1,6 +1,8 @@
 import type { Matrix2DChar, RenderBlock } from "../types/block";
 import type { WeatherData } from "../types/weatherapi";
 import { calculateMoonPhase } from "../utils/astronomyhelper";
+import type { Config } from "../utils/config";
+import { convertTemp } from "../utils/units";
 import { MOON_ART, pointOnCircleFromAngleDegrees, SUNSET_SUNRISE_ART } from "./asciiart";
 import { addSolidBorder, calculateIndividualSectionWidthAndXPosAndMidCol, generateBlankCharArray, generateClearBlockString, generateMoveToCmd, reduceCharsToStrings } from "./renderhelper";
 
@@ -205,7 +207,9 @@ export class CurrentConditions implements RenderBlock {
       return;
     }
   }
-  updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
+  updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData, config: Config): void => {
+    let temp_unit_string = config.uses_celcius ? "°C" : "°F";
+
     let midCol = posX+Math.floor(width/2);
     let midRow = posY+Math.floor(height/2);
     let moveToMidCmd = generateMoveToCmd(midCol, midRow);
@@ -235,19 +239,19 @@ export class CurrentConditions implements RenderBlock {
     let wmo_string = convertWMOCodeToString(WMOCode)
 
     if (data.current?.temperature) {
-      temp = data.current.temperature;
+      temp = convertTemp(data.current.temperature, config.uses_celcius);
     }
 
     if (data.current?.apparentTemperature) {
-      feels_like = data.current.apparentTemperature;
+      feels_like = convertTemp(data.current.apparentTemperature, config.uses_celcius);
     }
 
     if (data.current?.isDay) {
       is_day = data.current.isDay;
     }
 
-    output_string = output_string.concat(moveToMidCmd, "\x1b[1D\x1b[2A", temp+"°C"); // renders temp
-    output_string = output_string.concat(moveToMidCmd, "\x1b[1A\x1b[6D", "Feels like "+feels_like+"°C"); // feels like
+    output_string = output_string.concat(moveToMidCmd, "\x1b[1D\x1b[2A", temp+temp_unit_string); // renders temp
+    output_string = output_string.concat(moveToMidCmd, "\x1b[1A\x1b[6D", "Feels like "+feels_like+temp_unit_string); // feels like
     output_string = output_string.concat(moveToMidCmd, "\x1b["+(Math.floor(wmo_string.length/2)-1)+"D", wmo_string);
 
     if (is_day == 1) {
@@ -279,7 +283,9 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
     renderString = "";
     isAnimated = false;
     constructor() {};
-    updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData): void => {
+    updateRenderString = (width: number, height: number, posX: number, posY: number, data: WeatherData, config: Config): void => {
+      let temp_unit_string = config.uses_celcius ? "°C" : "°F";
+
       let midCol = posX+Math.floor(width/2);
       let midRow = posY+Math.floor(height/2);
       let moveToMidCmd = generateMoveToCmd(midCol, midRow);
@@ -319,6 +325,8 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
           condition = conditions[i] as number;
         }
 
+        temp = convertTemp(temp, config.uses_celcius);
+
         let conditionString = convertWMOCodeToString(condition);
 
         //console.log(conditionString);
@@ -332,7 +340,7 @@ export class HourlyTemperatureAndConditions implements RenderBlock {
 
         output_string = output_string.concat(moveToMidCmd, "\x1b["+Math.floor(conditionString.length/2)+"D", conditionString);
         output_string = output_string.concat(moveToMidCmd, "\x1b[1D\x1b[1B", (hour.toLocaleTimeString(Intl.getCanonicalLocales("en-US")).split(":")[0] as string).concat(is_am_or_pm)); // makes it say the hour in 12hr time
-        output_string = output_string.concat(moveToMidCmd, "\x1b[2D\x1b[1A", temp.toPrecision(2)+"°C");
+        output_string = output_string.concat(moveToMidCmd, "\x1b[2D\x1b[1A", temp.toPrecision(2)+temp_unit_string);
       }
 
       this.renderString = output_string;
@@ -370,9 +378,9 @@ export class CurrentWind implements RenderBlock {
     outputString = outputString.concat(generateMoveToCmd(tipCol, tipRow), "*", generateMoveToCmd(buttCol, buttRow), "■");
     outputString = outputString.concat(generateMoveToCmd(this.blockCol+1, this.blockRow+1), this.windDirection.toString(), "°");
 
-    console.write(outputString);
+    process.stdout.write(outputString);
   }
-  updateRenderString (width: number, height: number, posX: number, posY: number, data: WeatherData): void {
+  updateRenderString (width: number, height: number, posX: number, posY: number, data: WeatherData, config: Config): void {
     this.blockCol = posX;
     this.blockRow = posY;
     this.blockHeight = height;
@@ -414,7 +422,7 @@ export class SunsetSunrise implements RenderBlock {
   renderString = "";
   isAnimated = false;
   constructor() {};
-  updateRenderString(width: number, height: number, posX: number, posY: number, data: WeatherData): void {
+  updateRenderString(width: number, height: number, posX: number, posY: number, data: WeatherData, config: Config): void {
     let midCol = posX+Math.floor(width/2);
     let midRow = posY+Math.floor(height/2);
     let moveToMidCmd = generateMoveToCmd(midCol, midRow);
@@ -455,7 +463,9 @@ export class DailyOverview implements RenderBlock {
   renderString = "";
   isAnimated = false;
   constructor() {};
-  updateRenderString(width: number, height: number, posX: number, posY: number, data: WeatherData): void {
+  updateRenderString(width: number, height: number, posX: number, posY: number, data: WeatherData, config: Config): void {
+    let temp_unit_string = config.uses_celcius ? "°C" : "°F";
+
     let midCol = posX+Math.floor(width/2);
     let midRow = posY+Math.floor(height/2);
     let moveToMidCmd = generateMoveToCmd(midCol, midRow);
@@ -470,14 +480,16 @@ export class DailyOverview implements RenderBlock {
     let precipitationSum = data.daily?.precipitation?.at(date_index) || 0;
     let precipitationProbability = data.daily?.precipitationProbability?.at(date_index) || 0;
     let temperatureMax = data.daily?.temperatureMax?.at(date_index) || 0;
+    temperatureMax = convertTemp(temperatureMax, config.uses_celcius);
     let temperatureMin = data.daily?.temperatureMin?.at(date_index) || 0;
+    temperatureMin = convertTemp(temperatureMin, config.uses_celcius);
     let weatherCode = data.daily?.weatherCode?.at(date_index) || -1;
     let weatherString = convertWMOCodeToString(weatherCode);
 
     outputString = outputString.concat(generateMoveToCmd(midCol-3, midRow-2),"💧", precipitationSum.toString(), "mm");
     outputString = outputString.concat(generateMoveToCmd(midCol-5, midRow-1), precipitationProbability.toString(), "% Chance");
     outputString = outputString.concat(generateMoveToCmd(midCol-(Math.floor(weatherString.length/2)), midRow), weatherString);
-    outputString = outputString.concat(generateMoveToCmd(midCol-7, midRow+1), temperatureMin.toString(), "°C - ", temperatureMax.toString(), "°C");
+    outputString = outputString.concat(generateMoveToCmd(midCol-5, midRow+1), temperatureMin.toString(), temp_unit_string, " - ", temperatureMax.toString(), temp_unit_string);
 
     this.renderString = outputString;
   }
@@ -509,9 +521,9 @@ export class MoonPhases implements RenderBlock {
     outputString = outputString.concat(moveToMidCmd, MOON_ART[this.phase]!);
     outputString = outputString.concat(generateMoveToCmd(this.blockCol+1, this.blockRow), this.title);
 
-    console.write(outputString);
+    process.stdout.write(outputString);
   }
-  updateRenderString(width: number, height: number, posX: number, posY: number, data: WeatherData): void {
+  updateRenderString(width: number, height: number, posX: number, posY: number, data: WeatherData, config: Config): void {
     this.blockCol = posX;
     this.blockRow = posY;
     this.blockHeight = height;

@@ -238,6 +238,44 @@ class Button extends TuiComponent {
   }
 }
 
+interface ToggleButtonProps extends ButtonProps {
+  defaultState?: boolean;
+  onToggle?: (state: boolean) => void;
+}
+
+class ToggleButton extends Button {
+  override props: ToggleButtonProps;
+  state: boolean
+
+  constructor(id: string, props: ToggleButtonProps) {
+    super(id, props);
+    this.state = props.defaultState || false;
+    this.props = props;
+  }
+
+  override render(width: number) {
+    const yesOrNo = this.state ? "yes" : "no";
+    const label = `${yesOrNo} | ${this.props.label} `;
+    const content = `(${label})`;
+    const show = this.focused ? `> ${content}` : `  ${content}`;
+    const suffix = this.props.disabled ? ' (disabled)' : '';
+    return [this.fitLine(show + suffix, width)];
+  }
+
+  override handleEvent(event: TuiEvent) {
+    if (!this.focused) return false;
+    if (event.type != "key") return false;
+    if (event.key == "enter" || event.key == " ") {
+      if (!this.props.disabled) {
+        this.state = !this.state;
+        this.props.onToggle?.(this.state);
+      };
+      return true;
+    }
+    return false;
+  }
+}
+
 interface LabelProps extends TuiComponentProps {
   label: string;
 }
@@ -463,4 +501,4 @@ function testTui() {
   app.start();
 }
 
-testTui();
+export {TuiApp, TuiRenderer, TuiComponent, TuiContainer, Button, TextInput, Label, ToggleButton};
