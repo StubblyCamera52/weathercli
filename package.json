@@ -1,5 +1,5 @@
 {
-  "name": "weathercli",
+  "name": "weathertui",
   "version": "0.1.0",
   "description": "A terminal utility to view the weather.",
   "author": {
@@ -27,6 +27,6 @@
     "node-fetch": "^3.3.2"
   },
   "bin": {
-    "weathercli": "dist/index.js"
+    "weathertui": "dist/index.js"
   }
 }
