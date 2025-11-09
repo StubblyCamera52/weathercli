@@ -1,12 +1,12 @@
-import Decimal from "decimal.js";
+import { Decimal } from "decimal.js";
 
-// 0: "New Moon", 
-// 1: "Waxing Crescent", 
-// 2: "First Quarter", 
-// 3: "Waxing Gibbous", 
-// 4: "Full Moon", 
-// 5: "Waning Gibbous", 
-// 6: "Last Quarter", 
+// 0: "New Moon",
+// 1: "Waxing Crescent",
+// 2: "First Quarter",
+// 3: "Waxing Gibbous",
+// 4: "Full Moon",
+// 5: "Waning Gibbous",
+// 6: "Last Quarter",
 // 7: "Waning Crescent"
 
 
