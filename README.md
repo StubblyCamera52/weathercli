@@ -37,7 +37,9 @@ You can install it using `npm install -g weathertui`.
 
 Then run it using `weathertui`.
 
-First run will prompt you to enter your location and whether you want to use Celcius or Fahrenheit
+First run will prompt you to enter your location (in decimal coordinates) and whether you want to use Celcius or Fahrenheit
+
+use `weathertui -s` to change your settings again.
 
 You can also run by cloning the repo and running the scripts.
 
